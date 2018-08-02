@@ -340,12 +340,12 @@ nano /etc/yum.repos.d/MariaDB.repo
 ```bash
 [mariadb]
 name=MariaDB
-baseurl=http://yum.mariadb.org/10.3/centos7-amd64
+baseurl=http://yum.mariadb.org/10.3.8/centos7-amd64
 gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
 gpgcheck=1
 ```
 
-- Ensure you have the latest version listed here
+- Ensure you have the latest version listed here: http://yum.mariadb.org/
 - Save and exit
 
 ##### Run
