@@ -69,8 +69,7 @@ yum -y install epel-release
 ##### Start and enable the firewall
 
 ```bash
-systemctl start firewalld
-systemctl enable firewalld
+systemctl start firewalld && systemctl enable firewalld
 ```
 
 ##### Choose a port to shell into (optional but recommended)
