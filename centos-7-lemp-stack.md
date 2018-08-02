@@ -1,7 +1,6 @@
 # New Server Setup
 
-This guide assumes a Centos 7 operating system and you are setting a LEMP stack up.
-For best results, complete guide from top to bottom.
+This guide assumes a Centos 7 operating system and you are setting a LEMP stack up. It also assumes you know how to point a domain name to your server's IP address. For best results, complete guide from top to bottom.
 
 ## Ensure that SELINUX is disabled
 
@@ -18,6 +17,7 @@ nano /etc/sysconfig/selinux
 ```
 
 ##### Change
+
 ```bash
 From: SELINUX=enforcing | To: SELINUX=disabled
 ```
@@ -32,11 +32,13 @@ timedatectl set-timezone 'America/Chicago'
 ```
 
 If you are unsure about the timezone, run the following command to list available timezones:
+
 ```bash
 timedatectl list-timezones
 ```
 
-Verify date with:
+**Verify date with:**
+
 ```bash
 date
 ```
@@ -65,6 +67,7 @@ yum -y install epel-release
 ## Setup Basic Firewall
 
 ##### Start and enable the firewall
+
 ```bash
 systemctl start firewalld
 systemctl enable firewalld
