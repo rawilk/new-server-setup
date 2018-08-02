@@ -687,6 +687,18 @@ Save and exit
 
 This will check twice a day for certs that need to be renewed.
 
+##### Disable TLS 1.0 for added security
+```bash
+nano /etc/letsencrypt/options-ssl-nginx.conf
+```
+
+Remove TLS v1.0 From the ssl_protocols line
+
+```bash
+systemctl restart nginx
+```
+Finalize change by restarting nginx
+
 ## Install Composer
 
 ```bash
