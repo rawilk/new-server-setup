@@ -30,6 +30,8 @@ SSH_PORT=22
 # Redirect output of this script to our logfile
 exec &> /root/stackscript.log
 
+echo "Starting install"
+
 # This sets the variable $IPADDR to the IP address the new Linode receives
 IPADDR=$(/sbin/ifconfig eth0 | awk '/inet / { print $2 }' | sed 's/addr://')
 
@@ -44,17 +46,19 @@ systemctl enable ntpd
 echo "...done"
 
 # This section sets the host name.
+echo "Setting hostname to: $LINODE_HOST_NAME"
 echo $LINODE_HOST_NAME > /etc/hostname
 hostname -F /etc/hostname
 
 # This section sets the fully qualified domain name (FDQN) in the hosts file
 echo $IPADDR $FQDN $LINODE_HOST_NAME >> /etc/hosts
+echo "...done"
 
 # Create dedicated shell user
 echo "Creating shell user: $SHELL_USER_NAME"
 useradd $SHELL_USER_NAME && echo $SHELL_USER_PASSWORD | passwd $SHELL_USER_PASSWORD --stdin
 usermod -aG wheel $SHELL_USER_NAME
-echo "Done creating shell user"
+echo "...done"
 
 # Disable root over ssh
 echo "Disabling root over ssh"
@@ -70,9 +74,11 @@ yum remove -y avahi chrony
 echo "...done"
 
 # Initial yum installs
+echo "Updating yum"
 yum -y update
 yum -y install epel-release
 yum -y update
+echo "...done"
 
 # Set up automatic updates
 echo "Setting up automatic updates"
@@ -90,15 +96,57 @@ firewall-cmd --zone=public --add-interface=eth0
 firewall-cmd --reload
 echo "...done"
 
+# Setup FTP
+echo "Installing vsftpd"
+yum -y install vsftpd
+echo "...done"
+
+# Create FTP user
+echo "Creating FTP user: $FTP_USER_NAME"
+useradd $FTP_USER_NAME && echo $FTP_USER_PASSWORD | passwd $FTP_USER_PASSWORD --stdin
+echo "...done"
+
+# Update firewall rules for ftp
+echo "Configuring firewall for FTP"
+firewall-cmd --add-port=20/tcp --zone=public --permanent
+firewall-cmd --add-port=20/udp --zone=public --permanent
+firewall-cmd --add-port=21/tcp --zone=public --permanent
+firewall-cmd --add-port=21/udp --zone=public --permanent
+firewall-cmd --add-port=40000-40100/tcp --zone=public --permanent
+firewall-cmd --add-port=40000-40100/udp --zone=public --permanent
+firewall-cmd --reload
+echo "...done"
+
+# Enable vsftpd
+echo "Enabling vsftpd"
+systemctl start vsftpd
+systemctl enable vsftpd
+echo "...done"
+
+# Install nginx and php
+echo "Installing PHP and Nginx"
+rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
+yum -y install nginx php72w-fpm php72w-bcmath php72w-gd php72w-mbstring php72w-xmlrpc php72w-mysql php72w-pdo php72w-pecl-imagick php72w-xml
+echo "...done"
+
+# Allow app through firewall
+firewall-cmd --add-port=80/tcp --zone=public --permanent
+firewall-cmd --add-port=443/tcp --zone=public --permanent
+firewall-cmd --reload
+
 # Install composer
+echo "Installing composer"
 cd /tmp
 curl -sS https://getcomposer.org/installer | php
 mv composer.phar /usr/local/bin/composer
+echo "...done"
 
 # Install Node and NPM
+echo "Installing node and npm"
 curl --silent --location https://rpm.nodesource.com/setup_10.x | sudo bash -
 yum -y install nodejs
 npm install npm@latest -g
+echo "...done"
 
 # Script has finished
-ecoh "#### Installation Complete! ####"
+echo "#### Installation Complete! ####"
