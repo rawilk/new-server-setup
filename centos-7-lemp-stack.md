@@ -2,7 +2,7 @@
 
 This guide assumes a Centos 7 operating system and you are setting a LEMP stack up. It also assumes you know how to point a domain name to your server's IP address. For best results, complete guide from top to bottom.
 
-## Ensure that SELINUX is disabled
+## Ensure that SELinux is disabled
 
 ##### Run
 
@@ -196,7 +196,7 @@ chmod 600 ~/.ssh/id_rsa
 cat id_rsa.pub >> ~/.ssh/authorized_keys
 ```
 
-Only run the following if you have SELINUX enabled
+Only run the following if you have SELinux enabled
 
 ```bash
 restorecon -Rv ~/.ssh
