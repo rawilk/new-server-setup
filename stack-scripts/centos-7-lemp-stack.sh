@@ -27,9 +27,6 @@ FTP_USER_PASSWORD=""
 SSH_PORT=22
 #
 
-# Redirect output of this script to our logfile
-exec &> /root/stackscript.log
-
 echo "Starting install"
 
 # This sets the variable $IPADDR to the IP address the new Linode receives
