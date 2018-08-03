@@ -86,6 +86,17 @@ yum -y install yum-cron
 sed -i -e "s/apply_updates = no/apply_updates = yes/" /etc/yum/yum-cron.conf
 echo "...done"
 
+# Setup fail2ban
+echo "Setting up fail2ban"
+yum -y install fail2ban
+cd /etc/fail2ban
+cp fail2ban.conf fail2ban.local
+cp jail.conf jail.local
+sed -i -e "s/backend = auto/backend = systemd/" /etc/fail2ban/jail.local
+systemctl enable fail2ban
+systemctl start fail2ban
+echo "...done"
+
 # Enable the firewall
 echo "Setting up firewalld..."
 systemctl start firewalld
