@@ -21,8 +21,8 @@ sestatus
 If it says that SELinux is enabled and enforcing, run the following commands:
 
 ```bash
-    setenforce 0
-    sed -i -e "s/SELINUX=enforcing/SELINUX=disabled/" /etc/sysconfig/selinux
+setenforce 0
+sed -i -e "s/SELINUX=enforcing/SELINUX=disabled/" /etc/sysconfig/selinux
 ```
 
 Now you should reboot the server to disable SELinux. You can wait to the end, but you might as well do it now.
