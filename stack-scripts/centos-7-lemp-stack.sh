@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ############################################################
-# Centos 7 linode stackscript for a new LEMP Stack install
+# CentOS 7 linode stackscript for a new LEMP Stack install
 # on a new server
 #
 # Monitor progress by: tail -f /root/stackscript.log
