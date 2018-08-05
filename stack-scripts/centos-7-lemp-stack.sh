@@ -98,7 +98,7 @@ sed -i -e "s/#ClientAliveInterval 0/ClientAliveInterval 600/" /etc/ssh/sshd_conf
 sed -i -e "s/#ClientAliveCountMax 3/ClientAliveCountMax 0/" /etc/ssh/sshd_config
 
 # Disable ssh password login
-if [[ $PASSWORD_LOGIN = 'no' ]]; then
+if [[ $PASSWORD_LOGIN = 'no' ]] && [[ $SSH_PUB_KEY != '' ]]; then
     sed -i -e "s/PasswordAuthentication yes/PasswordAuthentication no/" /etc/ssh/sshd_config
 fi
 
