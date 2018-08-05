@@ -8,13 +8,13 @@
 #
 # Author: Randall Wilk <randall@randallwilk.com>
 # Date: 08/04/2018
-# Last Updated: 08/04/2018
+# Last Updated: 08/05/2018
 ###########################################################
 
 # Define variables
 
 #<UDF name="hostname" label="Enter main hostname for the new Linode server.">
-#<UDF name="fqdn" label="Enter Server's Fully Qualified Domain Name (same as main hostname)">
+#<UDF name="fqdn" label="Enter Server's Fully Qualified Domain Name (same as main hostname). Don't enter `www`">
 #<UDF name="timezone" label="Server Timezone" default="America/Chicago" example="America/New_York">
 #<UDF name="selinux" label="Enable SELinux?" oneOf="no,yes" default="no">
 #<UDF name="ssh_pub_key" label="SSH pubkey (installed for root and shell user)" example="ssh-rsa ..." default="">
@@ -30,7 +30,7 @@
 #<UDF name="db_user_name" label="Database User Name">
 #<UDF name="db_user_password" label="Database User Password">
 #<UDF name="ssl" label="Install SSL Cert" oneOf="no,yes" default="yes">
-#<UDF name="ssl_email" label="SSL Renewal and Security Notices Email">
+#<UDF name="ssl_email" label="SSL Renewal and Security Notices Email" default="">
 
 # This sets the variable $IPADDR to the IPv4 address the new Linode receives.
 IPADDR=$(hostname -I | cut -f1 -d' ')
