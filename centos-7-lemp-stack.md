@@ -22,7 +22,22 @@ If it says that SELinux is enabled and enforcing, run the following commands:
 
 ```bash
 setenforce 0
-sed -i -e "s/SELINUX=enforcing/SELINUX=disabled/" /etc/sysconfig/selinux
+truncate -s 0 /etc/sysconfig/selinux
+
+# Run as single command
+cat <<EOT >> /etc/sysconfig/selinux
+# This file controls the state of SELinux on the system.
+# SELINUX= can take one of these three values:
+#     enforcing - SELinux security policy is enforced.
+#     permissive - SELinux prints warnings instead of enforcing.
+#     disabled - No SELinux policy is loaded.
+SELINUX=disabled
+# SELINUXTYPE= can take one of three two values:
+#     targeted - Targeted processes are protected,
+#     minimum - Modification of targeted policy. Only selected processes are protected.
+#     mls - Multi Level Security protection.
+SELINUXTYPE=targeted
+EOT
 ```
 
 Now you should reboot the server to disable SELinux. You can wait to the end, but you might as well do it now.
@@ -353,6 +368,8 @@ gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
 gpgcheck=1
 EOT
 ```
+
+> Tip: Ensure you have the latest version listed here: http://yum.mariadb.org/
 
 **Install mariadb and start the service**
 
