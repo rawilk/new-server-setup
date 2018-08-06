@@ -45,7 +45,7 @@ echo "#### Install Start ####"
 
 # Disable SELinux (this will require a server reboot after install is complete)
 if [[ $SELINUX = 'no' ]]; then
-    # Set to permissive to allow certain changes to be allowed during install
+    # Set to permissive to allow certain changes during install
     setenforce 0
 
     # Rebuild contents of selinux config b/c find and replace doesn't do it for some reason
