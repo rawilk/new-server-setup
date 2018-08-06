@@ -8,7 +8,7 @@
 #
 # Author: Randall Wilk <randall@randallwilk.com>
 # Date: 08/04/2018
-# Last Updated: 08/05/2018
+# Last Updated: 08/06/2018
 ###########################################################
 
 # Define variables
@@ -45,9 +45,13 @@ echo "#### Install Start ####"
 
 # Disable SELinux (this will require a server reboot after install is complete)
 if [[ $SELINUX = 'no' ]]; then
+    # Set to permissive to allow certain changes to be allowed during install
     setenforce 0
+
+    # Rebuild contents of selinux config b/c find and replace doesn't do it for some reason
     truncate -s 0 /etc/sysconfig/selinux
-cat <<EOT >> /etc/sysconfig/selinux
+
+    cat <<EOT >> /etc/sysconfig/selinux
 # This file controls the state of SELinux on the system.
 # SELINUX= can take one of these three values:
 #     enforcing - SELinux security policy is enforced.
@@ -59,7 +63,6 @@ SELINUX=disabled
 #     minimum - Modification of targeted policy. Only selected processes are protected.
 #     mls - Multi Level Security protection.
 SELINUXTYPE=targeted
-
 EOT
 fi
 
