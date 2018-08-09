@@ -8,6 +8,16 @@ read LARAVEL
 echo -n "Enter your application's username (ftp username): "
 read USERNAME
 
+# Should migrations be ran?
+echo -n "Create job database tables? [y/n] "
+read CREATE_TABLES
+
+if [[ $CREATE_TABLES != 'n' ]]; then
+    php $LARAVEL/artisan queue:table
+    php $LARAVEL/artisan queue:failed-table
+    php $LARAVEL/artisan migrate
+fi
+
 echo "Installing supervisor"
 yum -y update
 yum -y install supervisor
