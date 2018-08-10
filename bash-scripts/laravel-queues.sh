@@ -40,6 +40,6 @@ systemctl start supervisord
 systemctl enable supervisord
 supervisorctl reread
 supervisorctl update
-suprvisorctl start laravel-worker:*
+supervisorctl start laravel-worker:*
 
 echo "Supervisor and laravel queues now running"
