@@ -11,9 +11,8 @@ https://github.com/rawilk/new-server-setup/tree/master/guides
 https://github.com/rawilk/new-server-setup/tree/master/bash-scripts
 
 #### Usage:
-- Add script to your server (`nano /path/to/script.sh`)
-- Paste contents of the script into file you just created and then save and exit
-- Give **execute** permission to the script (`chmod +x /path/to/script.sh`)
-- Now run the script: `/path/to/script.sh`
+- Pull script into your server: `wget https://raw.githubusercontent.com/rawilk/new-server-setup/master/bash-scripts/name-of-script.sh -O name-of-file.sh`
+- Allow script to be executed: `chmod +x name-of-file.sh`
+- Run the script: `./name-of-script.sh`
 
 > Tip: create and run the scripts as the root user
