@@ -23,7 +23,7 @@ sudo yum -y update
 sudo yum -y install supervisor
 
 echo "Configuring laravel queues"
-sudo truncate /etc/supervisord.conf
+sudo truncate -s 0 /etc/supervisord.conf
 
 sudo cat <<EOT >> /etc/supervisord.conf
 [unix_http_server]
