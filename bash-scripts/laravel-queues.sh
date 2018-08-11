@@ -19,11 +19,11 @@ if [[ $CREATE_TABLES != 'n' ]]; then
 fi
 
 echo "Installing supervisor"
-yum -y update
-yum -y install supervisor
+sudo yum -y update
+sudo yum -y install supervisor
 
 echo "Configuring laravel queues"
-cat <<EOT >> /etc/supervisord.conf
+sudo cat <<EOT >> /etc/supervisord.conf
 [program:laravel-worker]
 process_name=%(program_name)s_%(process_num)02d
 command=php $LARAVEL/artisan queue:work --sleep=3 --tries=3
@@ -35,11 +35,15 @@ redirect_stderr=true
 stdout_logfile=$LARAVEL/worker.log
 EOT
 
+# Make the log file and give ownership to the user account
+sudo touch $LARAVEL/worker.log
+sudo chown $USERNAME:$USERNAME $LARAVEL/worker.log
+
 echo "Starting supervisor"
-systemctl start supervisord
-systemctl enable supervisord
-supervisorctl reread
-supervisorctl update
-supervisorctl start laravel-worker:*
+sudo systemctl start supervisord
+sudo systemctl enable supervisord
+sudo supervisorctl reread
+sudo supervisorctl update
+sudo supervisorctl start laravel-worker:*
 
 echo "Supervisor and laravel queues now running"
