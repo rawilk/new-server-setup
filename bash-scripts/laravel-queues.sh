@@ -23,21 +23,48 @@ sudo yum -y update
 sudo yum -y install supervisor
 
 echo "Configuring laravel queues"
+sudo truncate /etc/supervisord.conf
+
 sudo cat <<EOT >> /etc/supervisord.conf
+[unix_http_server]
+file = /tmp/supervisor.sock
+chmod = 0777
+chown= $USERNAME:$USERNAME
+
+[supervisord]
+logfile = /tmp/supervisord.log
+logfile_maxbytes = 50MB
+logfile_backups=10
+loglevel = info
+pidfile = /tmp/supervisord.pid
+nodaemon = false
+minfds = 1024
+minprocs = 200
+umask = 022
+user = mywebsiteuser
+identifier = supervisor
+directory = /tmp
+nocleanup = true
+childlogdir = /tmp
+strip_ansi = false
+
+[supervisorctl]
+serverurl = http://localhost:9001
+
 [program:laravel-worker]
 process_name=%(program_name)s_%(process_num)02d
-command=php $LARAVEL/artisan queue:work --sleep=3 --tries=3
+command=php $LARAVEL/artisan queue:work --sleep=3 --tries=3 --daemon
 autostart=true
 autorestart=true
 user=$USERNAME
 numprocs=8
 redirect_stderr=true
-stdout_logfile=$LARAVEL/worker.log
+stdout_logfile=$LARAVEL/../logs/worker.log
 EOT
 
 # Make the log file and give ownership to the user account
-sudo touch $LARAVEL/worker.log
-sudo chown $USERNAME:$USERNAME $LARAVEL/worker.log
+sudo touch $LARAVEL/../logs/worker.log
+sudo chown $USERNAME:$USERNAME $LARAVEL/../logs/worker.log
 
 echo "Starting supervisor"
 sudo systemctl start supervisord
