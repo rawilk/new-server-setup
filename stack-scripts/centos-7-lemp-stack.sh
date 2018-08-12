@@ -160,6 +160,12 @@ sed -i -e "s/backend = auto/backend = systemd/" /etc/fail2ban/jail.local
 systemctl enable fail2ban
 systemctl start fail2ban
 
+# Install wget
+yum -y install wget
+
+# Fix backspace issue for shell scripts
+stty erase ^H
+
 # Setup FTP
 yum -y install vsftpd
 
