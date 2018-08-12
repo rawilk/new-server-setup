@@ -15,4 +15,4 @@ https://github.com/rawilk/new-server-setup/tree/master/bash-scripts
 - Allow script to be executed: `chmod +x name-of-file.sh`
 - Run the script: `./name-of-file.sh`
 
-> Tip: create and run the scripts as the root user
+> Tip: create and run the scripts as the root user or sudo user
