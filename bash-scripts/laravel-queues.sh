@@ -23,9 +23,8 @@ sudo yum -y update
 sudo yum -y install supervisor
 
 echo "Configuring laravel queues"
-#sudo truncate -s 0 /etc/supervisord.conf
-
 sudo cat <<EOT >> /etc/supervisord.conf
+
 [program:laravel-worker]
 process_name=%(program_name)s_%(process_num)02d
 command=php $LARAVEL/artisan queue:work --sleep=3 --tries=3 --daemon
