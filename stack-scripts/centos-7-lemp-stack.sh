@@ -445,7 +445,7 @@ if [[ $SSL = 'yes' ]]; then
     echo "$SSL_INSTALL"
 
     # Auto-renew certs
-    crontab -l | { cat; echo "0 0,12 * * * python -c 'import random; import time; time.sleep(random.random() * 3600)' && certbot renew"; } | crontab -
+    crontab -l | { cat; echo "0 * * * * python -c 'import random; import time; time.sleep(random.random() * 3600)' && certbot renew"; } | crontab -
 
     # Disable TLS v1.0
     sed -i -e "s/ssl_protocols TLSv1 TLSv1.1 TLSv1.2;/ssl_protocols TLSv1.1 TLSv1.2;/" /etc/letsencrypt/options-ssl-nginx.conf
