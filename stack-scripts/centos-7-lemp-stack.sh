@@ -379,7 +379,7 @@ touch /home/$FTP_USER_NAME/public_html/public/index.php
 echo "<?php phpinfo(); ?>" >> /home/$FTP_USER_NAME/public_html/public/index.php
 
 # Give FTP user ownership of the folders
-chown -R $FTP_USER_NAME /home/$FTP_USER_NAME
+chown -R $FTP_USER_NAME:$FTP_USER_NAME /home/$FTP_USER_NAME
 
 # Start and enable nginx
 systemctl start nginx
@@ -402,9 +402,9 @@ systemctl start php-fpm
 systemctl enable php-fpm
 
 # Give FTP user proper ownership
-chown -R $FTP_USER_NAME /var/lib/php
-chown -R $FTP_USER_NAME /var/lib/nginx
-chown -R $FTP_USER_NAME /var/lib/php-fpm
+chown -R $FTP_USER_NAME:$FTP_USER_NAME /var/lib/php
+chown -R $FTP_USER_NAME:$FTP_USER_NAME /var/lib/nginx
+chown -R $FTP_USER_NAME:$FTP_USER_NAME /var/lib/php-fpm
 
 # Install cert
 if [[ $SSL = 'yes' ]]; then
