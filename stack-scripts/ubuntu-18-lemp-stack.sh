@@ -91,9 +91,6 @@ fi
 # Restart ssh service to enable changes made
 systemctl restart sshd
 
-# Enable the firewall
-ufw enable
-
 # TODO: cron-apt
 
 # Setup fail2ban
@@ -131,11 +128,16 @@ EOT
 ufw allow ftp
 ufw allow 20/tcp
 ufw allow 40000:40100/tcp
-ufw reload
 
 # Start and enable FTP
 systemctl start vsftpd
 systemctl enable vsftpd
+
+# Install Nginx
+apt install -y nginx
+
+# Allow through firewall
+ufw allow 'Nginx HTTP'
 
 # Install MariaDB
 # TODO - get latest version
@@ -153,3 +155,6 @@ mv composer.phar /usr/local/bin/composer
 
 # Install Node and NPM
 apt-get install -y nodejs
+
+# Enable the firewall
+ufw enable
