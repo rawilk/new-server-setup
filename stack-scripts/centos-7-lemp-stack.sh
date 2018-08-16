@@ -8,7 +8,7 @@
 #
 # Author: Randall Wilk <randall@randallwilk.com>
 # Date: 08/04/2018
-# Last Updated: 08/06/2018
+# Last Updated: 08/16/2018
 ###########################################################
 
 # Define variables
@@ -44,7 +44,7 @@ exec &> /root/stackscript.log
 echo "#### Install Start ####"
 
 # Disable SELinux (this will require a server reboot after install is complete)
-if [[ $SELINUX = 'no' ]]; then
+if [ $SELINUX = 'no' ]; then
     # Set to permissive to allow certain changes during install
     setenforce 0
 
@@ -91,36 +91,37 @@ systemctl enable ntpd
 useradd $SHELL_USER_NAME && echo $SHELL_USER_PASSWORD | passwd $SHELL_USER_NAME --stdin
 usermod -aG wheel $SHELL_USER_NAME
 
-# Allow shell user to ssh in
-echo "AllowUsers $SHELL_USER_NAME" >> /etc/ssh/sshd_config
-
 # Change SSH Port
-if [[ $SSH_PORT != '22' ]]; then
-    sed -i -e "s/#Port 22/Port $SSH_PORT/" /etc/ssh/sshd_config
+if [ $SSH_PORT != '22' ]; then
+    sed -i -e "s/.*Port .*/Port $SSH_PORT/" /etc/ssh/sshd_config
 
-    # Let SELinux know about port change
-    semanage port -a -t ssh_port_t -p tcp $SSH_PORT
+    if [ $SELINUX != 'no' ]; then
+        # Let SELinux know about port change
+        semanage port -a -t ssh_port_t -p tcp $SSH_PORT
+    fi
 fi
 
 # Ban root from logging in remotely
-if [[ $ROOT_LOGIN = 'no' ]]; then
-    sed -i -e "s/PermitRootLogin yes/PermitRootLogin no/" /etc/ssh/sshd_config
-    sed -i -e "s/#PermitRootLogin no/PermitRootLogin no/" /etc/ssh/sshd_config
+if [ $ROOT_LOGIN = 'no' ]; then
+    sed -i -e "s/.*PermitRootLogin .*/PermitRootLogin no/" /etc/ssh/sshd_config
+
+    # Allow shell user to ssh in
+    echo "AllowUsers $SHELL_USER_NAME" >> /etc/ssh/sshd_config
 fi
 
 # Harden server
-sed -i -e "s/#AddressFamily any/AddressFamily inet/" /etc/ssh/sshd_config
-sed -i -e "s/#LoginGraceTime 2m/LoginGraceTime $LOGIN_GRACE_TIME/" /etc/ssh/sshd_config
-sed -i -e "s/#ClientAliveInterval 0/ClientAliveInterval 600/" /etc/ssh/sshd_config
-sed -i -e "s/#ClientAliveCountMax 3/ClientAliveCountMax 0/" /etc/ssh/sshd_config
+sed -i -e "s/.*AddressFamily .*/AddressFamily inet/" /etc/ssh/sshd_config
+sed -i -e "s/.*LoginGraceTime .*/LoginGraceTime $LOGIN_GRACE_TIME/" /etc/ssh/sshd_config
+sed -i -e "s/.*ClientAliveInterval .*/ClientAliveInterval 600/" /etc/ssh/sshd_config
+sed -i -e "s/.*ClientAliveCountMax .*/ClientAliveCountMax 0/" /etc/ssh/sshd_config
 
 # Disable ssh password login
-if [[ $PASSWORD_LOGIN = 'no' ]] && [[ $SSH_PUB_KEY != '' ]]; then
-    sed -i -e "s/PasswordAuthentication yes/PasswordAuthentication no/" /etc/ssh/sshd_config
+if [ $PASSWORD_LOGIN = 'no' ] && [ $SSH_PUB_KEY != '' ]; then
+    sed -i -e "s/PasswordAuthentication .*/PasswordAuthentication no/" /etc/ssh/sshd_config
 fi
 
 # Setup ssh keys
-if [[ $SSH_PUB_KEY != '' ]]; then
+if [ $SSH_PUB_KEY != '' ]; then
     mkdir -p /root/.ssh
     mkdir -p /home/$SHELL_USER_NAME/.ssh
     echo "$SSH_PUB_KEY" > /root/.ssh/authorized_keys
@@ -137,7 +138,7 @@ systemctl restart sshd
 systemctl start firewalld
 systemctl enable firewalld
 
-if [[ $SSH_PORT != '22' ]]; then
+if [ $SSH_PORT != '22' ]; then
     firewall-cmd --add-port=$SSH_PORT/tcp --zone=public --permanent
     firewall-cmd --reload
 fi
@@ -150,13 +151,13 @@ yum -y install htop
 
 # Setup automatic updates
 yum -y install yum-cron
-sed -i -e "s/apply_updates = no/apply_updates = yes/" /etc/yum/yum-cron.conf
+sed -i -e "s/apply_updates = .*/apply_updates = yes/" /etc/yum/yum-cron.conf
 
 # Setup fail2ban
 yum -y install fail2ban
 cp /etc/fail2ban/fail2ban.conf /etc/fail2ban/fail2ban.loal
 cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
-sed -i -e "s/backend = auto/backend = systemd/" /etc/fail2ban/jail.local
+sed -i -e "s/backend = .*/backend = systemd/" /etc/fail2ban/jail.local
 systemctl enable fail2ban
 systemctl start fail2ban
 
@@ -297,10 +298,10 @@ http {
 
     access_log  /var/log/nginx/access.log  main;
 
-    sendfile            on;
-    tcp_nopush          on;
-    tcp_nodelay         on;
-    keepalive_timeout   65;
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 65;
     types_hash_max_size 2048;
 
     gzip on;
@@ -311,8 +312,8 @@ http {
 
     client_max_body_size 64M;
 
-    include             /etc/nginx/mime.types;
-    default_type        application/octet-stream;
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
     include /etc/nginx/conf.d/*.conf;
 }
 EOT
@@ -321,13 +322,13 @@ EOT
 touch /etc/nginx/conf.d/$HOSTNAME.conf
 cat <<EOT >> /etc/nginx/conf.d/$HOSTNAME.conf
 server {
-    listen     80;
+    listen 80;
 
-    server_name  $IPADDR www.$FQDN $FQDN;
-    root         /home/$FTP_USER_NAME/public_html/public;
+    server_name $IPADDR www.$FQDN $FQDN;
+    root /home/$FTP_USER_NAME/public_html/public;
 
-    access_log  /home/$FTP_USER_NAME/logs/access.log;
-    error_log  /home/$FTP_USER_NAME/logs/error.log;
+    access_log /home/$FTP_USER_NAME/logs/access.log;
+    error_log /home/$FTP_USER_NAME/logs/error.log;
 
     client_max_body_size 1024M;
     index index.php index.html;
@@ -407,7 +408,7 @@ chown -R $FTP_USER_NAME:$FTP_USER_NAME /var/lib/nginx
 chown -R $FTP_USER_NAME:$FTP_USER_NAME /var/lib/php-fpm
 
 # Install cert
-if [[ $SSL = 'yes' ]]; then
+if [ $SSL = 'yes' ]; then
     yum -y install certbot-nginx
 
     SSL_INSTALL=$(expect -c "
@@ -448,7 +449,7 @@ if [[ $SSL = 'yes' ]]; then
     crontab -l | { cat; echo "0 * * * * python -c 'import random; import time; time.sleep(random.random() * 3600)' && certbot renew"; } | crontab -
 
     # Disable TLS v1.0
-    sed -i -e "s/ssl_protocols TLSv1 TLSv1.1 TLSv1.2;/ssl_protocols TLSv1.1 TLSv1.2;/" /etc/letsencrypt/options-ssl-nginx.conf
+    sed -i -e "s/ssl_protocols .*/ssl_protocols TLSv1.1 TLSv1.2;/" /etc/letsencrypt/options-ssl-nginx.conf
 
     # Restart nginx to enact changes
     systemctl restart nginx
@@ -475,7 +476,7 @@ rm -rf /var/cache/yum
 
 echo "#### Install complete ####"
 
-if [[ $SELINUX = 'no' ]]; then
+if [ $SELINUX = 'no' ]; then
     echo "Rebooting server to disable SELinux..."
     (sleep 5; reboot) &
 fi

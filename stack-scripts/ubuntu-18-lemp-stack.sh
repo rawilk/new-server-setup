@@ -5,7 +5,6 @@
 #<UDF name="hostname" label="Enter main hostname for the new Linode server.">
 #<UDF name="fqdn" label="Enter Server's Fully Qualified Domain Name (same as main hostname). Don't enter `www`">
 #<UDF name="timezone" label="Server Timezone" default="America/Chicago" example="America/New_York">
-#<UDF name="selinux" label="Enable SELinux?" oneOf="no,yes" default="no">
 #<UDF name="ssh_pub_key" label="SSH pubkey (installed for root and shell user)" example="ssh-rsa ..." default="">
 #<UDF name="password_login" label="Permit SSH Password Login" oneOf="no,yes" default="no">
 #<UDF name="shell_user_name" label="Shell User Name">
@@ -53,12 +52,12 @@ adduser --disabled-password --gecos "" $SHELL_USER_NAME
 echo "$SHELL_USER_NAME:$SHELL_USER_PASSWORD" | chpasswd
 usermod -aG sudo $SHELL_USER_NAME
 
-# Add user to allowed users in /etc/ssh/sshd_config
-echo "AllowUsers $SHELL_USER_NAME" >> /etc/ssh/sshd_config
-
 # Harden Server
 if [ $ROOT_LOGIN = 'no' ]; then
     sed -i -e "s/.*PermitRootLogin .*/PermitRootLogin no/" /etc/ssh/sshd_config
+
+    # Add shell user to allowed users in /etc/ssh/sshd_config
+    echo "AllowUsers $SHELL_USER_NAME" >> /etc/ssh/sshd_config
 fi
 
 sed -i -e "s/.*AddressFamily .*/AddressFamily inet/" /etc/ssh/sshd_config
@@ -226,10 +225,10 @@ http {
 
     access_log  /var/log/nginx/access.log  main;
 
-    sendfile            on;
-    tcp_nopush          on;
-    tcp_nodelay         on;
-    keepalive_timeout   65;
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 65;
     types_hash_max_size 2048;
 
     gzip on;
@@ -240,8 +239,8 @@ http {
 
     client_max_body_size 64M;
 
-    include             /etc/nginx/mime.types;
-    default_type        application/octet-stream;
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
     include /etc/nginx/conf.d/*.conf;
 }
 EOT
@@ -250,13 +249,13 @@ EOT
 touch /etc/nginx/conf.d/$HOSTNAME.conf
 cat <<EOT >> /etc/nginx/conf.d/$HOSTNAME.conf
 server {
-    listen     80;
+    listen 80;
 
-    server_name  $IPADDR www.$FQDN $FQDN;
-    root         /home/$FTP_USER_NAME/public_html/public;
+    server_name $IPADDR www.$FQDN $FQDN;
+    root /home/$FTP_USER_NAME/public_html/public;
 
-    access_log  /home/$FTP_USER_NAME/logs/access.log;
-    error_log  /home/$FTP_USER_NAME/logs/error.log;
+    access_log /home/$FTP_USER_NAME/logs/access.log;
+    error_log /home/$FTP_USER_NAME/logs/error.log;
 
     client_max_body_size 1024M;
     index index.php index.html;
@@ -276,8 +275,8 @@ server {
     }
 
     location ~* ^.+.(jpg|jpeg|gif|css|png|js|ico|html|xml|txt)$ {
-        access_log        off;
-        expires           max;
+        access_log off;
+        expires  max;
     }
 
     location ~ \.php\$ {
