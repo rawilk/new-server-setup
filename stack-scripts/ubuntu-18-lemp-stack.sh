@@ -331,6 +331,9 @@ chown -R $FTP_USER_NAME:$FTP_USER_NAME /home/$FTP_USER_NAME
 chown -R $FTP_USER_NAME:$FTP_USER_NAME /var/lib/php
 chown -R $FTP_USER_NAME:$FTP_USER_NAME /var/lib/nginx
 
+# Restart nginx
+systemctl restart nginx
+
 # Install SSL Cert
 if [ $SSL = 'yes' ]; then
     apt install -y python-certbot-nginx
