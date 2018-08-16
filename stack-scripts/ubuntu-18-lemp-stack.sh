@@ -405,4 +405,4 @@ apt autoclean
 echo "#### Install Complete! ####"
 
 echo "Rebooting server now..."
-(sleep 5; rooboot) &
+(sleep 5; reboot) &
