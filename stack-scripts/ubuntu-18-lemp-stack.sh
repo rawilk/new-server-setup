@@ -270,15 +270,14 @@ touch /etc/nginx/conf.d/$HOSTNAME.conf
 cat <<EOT >> /etc/nginx/conf.d/$HOSTNAME.conf
 server {
     listen 80;
-
-    server_name $IPADDR www.$FQDN $FQDN;
     root /home/$FTP_USER_NAME/public_html/public;
+    index index.php index.html;
+    server_name $IPADDR www.$FQDN $FQDN;
 
     access_log /home/$FTP_USER_NAME/logs/access.log;
     error_log /home/$FTP_USER_NAME/logs/error.log;
 
     client_max_body_size 1024M;
-    index index.php index.html;
 
     location /favicon.ico {
         access_log off;
@@ -301,7 +300,7 @@ server {
 
     location ~ \.php\$ {
         try_files \$uri =404;
-        fastcgi_pass unix:/run/php-fpm/www.sock;
+        fastcgi_pass unix:/var/run/php/php7.2-fpm.sock;
         fastcgi_index index.php;
         fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
         include /etc/nginx/fastcgi_params;
@@ -314,6 +313,10 @@ server {
 
     error_page 500 502 503 504 /50x.html;
         location = /50x.html {
+    }
+
+    location ~ /\.ht {
+        deny all;
     }
 }
 EOT
