@@ -385,7 +385,7 @@ if [ $SSL = 'yes' ]; then
     systemctl restart nginx
 
     # Allow https traffic through firewall
-    ufw allow https
+    ufw allow 'Nginx HTTPS'
 fi
 
 # Install composer
