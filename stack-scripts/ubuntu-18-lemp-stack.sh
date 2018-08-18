@@ -101,6 +101,10 @@ else
     ufw allow $SSH_PORT/tcp
 fi
 
+# Prevent IP Spoofing
+sed -i -e "s/order .*/order bind,hosts/" /etc/host.conf
+sed -i -e "s/multi on/nospoof on/" /etc/host.conf
+
 # Restart ssh service to enable changes made
 systemctl restart sshd
 
