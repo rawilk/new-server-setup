@@ -125,12 +125,12 @@ adduser --disabled-password --gecos "" $FTP_USER_NAME
 echo "$FTP_USER_NAME:$FTP_USER_PASSWORD" | chpasswd
 
 # Update FTP settings
-sed -i -e "s/anonymous_enable=YES/anonymous_enable=NO/" /etc/vsftpd/vsftpd.conf
-sed -i -e "s/#chroot_local_user=YES/chroot_local_user=YES/" /etc/vsftpd/vsftpd.conf
-sed -i -e "s/listen_ipv6=YES/#listen_ipv6=YES/" /etc/vsftpd/vsftpd.conf
-sed -i -e "s/listen=NO/listen=YES/" /etc/vsftpd/vsftpd.conf
+sed -i -e "s/anonymous_enable=.*/anonymous_enable=NO/" /etc/vsftpd.conf
+sed -i -e "s/.*chroot_local_user=.*/chroot_local_user=YES/" /etc/vsftpd.conf
+sed -i -e "s/listen_ipv6=.*/#listen_ipv6=YES/" /etc/vsftpd.conf
+sed -i -e "s/listen=.*/listen=YES/" /etc/vsftpd.conf
 
-cat <<EOT >> /etc/vsftpd/vsftpd.conf
+cat <<EOT >> /etc/vsftpd.conf
 allow_writeable_chroot=YES
 pasv_enable=YES
 pasv_min_port=40000
