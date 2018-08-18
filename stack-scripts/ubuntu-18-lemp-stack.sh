@@ -8,7 +8,7 @@
 #
 # Author: Randall Wilk <randall@randallwilk.com>
 # Date: 08/16/2018
-# Last Updated: 08/16/2018
+# Last Updated: 08/17/2018
 ##################################################################
 
 # Define variables
@@ -43,10 +43,10 @@ exec &> /root/stackscript.log
 echo "#### Install Start ####"
 
 # Update the system
-apt update && apt upgrade -y
+apt-get update && apt-get upgrade -y
 
 # Install expect (will be removed at the end)
-apt install -y expect
+apt-get install -y expect
 
 # Set the hostname
 hostnamectl set-hostname $FQDN --static
@@ -107,7 +107,7 @@ systemctl restart sshd
 # TODO: cron-apt
 
 # Setup fail2ban
-apt install -y fail2ban
+apt-get install -y fail2ban
 cp /etc/fail2ban/fail2ban.conf /etc/fail2ban/fail2ban.loal
 cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
 sed -i -e "s/backend = .*/backend = systemd/" /etc/fail2ban/jail.local
@@ -118,7 +118,7 @@ systemctl start fail2ban
 stty erase ^H
 
 # Setup FTP
-apt install -y vsftpd
+apt-get install -y vsftpd
 
 # Create FTP user
 adduser --disabled-password --gecos "" $FTP_USER_NAME
@@ -147,7 +147,7 @@ systemctl start vsftpd
 systemctl enable vsftpd
 
 # Install Nginx
-apt install -y nginx
+apt-get install -y nginx
 
 # Allow through firewall
 ufw allow 'Nginx HTTP'
@@ -160,7 +160,7 @@ debconf-set-selections <<< "mariadb-server-10.3 mysql-server/root_password_again
 
 apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xF1656F24C74CD1D8
 add-apt-repository 'deb [arch=amd64] http://mirror.zol.co.zw/mariadb/repo/10.3/ubuntu bionic main'
-apt install -y mariadb-server mariadb-client
+apt-get install -y mariadb-server mariadb-client
 
 # Run through the secure installation
 SECURE_MYSQL=$(expect -c "
@@ -207,7 +207,7 @@ ufw allow mysql
 mysql -u root -p$ROOT_DB_PASSWORD -e "GRANT ALL ON *.* TO '$DB_USER_NAME'@'%' IDENTIFIED BY '$DB_USER_PASSWORD' WITH GRANT OPTION;FLUSH PRIVILEGES;"
 
 # Install PHP (The order here matters; install php-fpm before php to avoid installing apache!)
-apt install -y php-fpm php-common php-bcmath php-gd php-mbstring php-xmlrpc php-mysql php-imagick php-xml php-zip
+apt-get install -y php-fpm php-common php-bcmath php-gd php-mbstring php-xmlrpc php-mysql php-imagick php-xml php-zip
 
 # Configure PHP
 sed -i -e "s/upload_max_filesize = 2M/upload_max_filesize = 64M/" /etc/php/7.2/fpm/php.ini
@@ -339,12 +339,18 @@ systemctl restart nginx
 
 # Install SSL Cert
 if [ $SSL = 'yes' ]; then
-    apt install -y python-certbot-nginx
+    apt-get install -y python-certbot-nginx
+
+    CERTBOT_INSTALL_COMMAND="certbot --nginx"
+
+    if [ $SSL_EMAIL = '' ]; then
+        CERTBOT_INSTALL_COMMAND="$CERTBOT_INSTALL_COMMAND --register-unsafely-without-email"
+    fi
 
     SSL_INSTALL=$(expect -c "
 
     set timeout 3
-    spawn certbot --nginx
+    spawn $CERTBOT_INSTALL_COMMAND
 
     expect \"Enter email address (used for urgent renewal and security notices)\"
     send \"$SSL_EMAIL\r\"
@@ -395,7 +401,7 @@ mv composer.phar /usr/local/bin/composer
 
 # Install Node and NPM
 curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
-apt install -y nodejs
+apt-get install -y nodejs
 npm install npm@latest -g
 
 # Enable the firewall
@@ -403,10 +409,10 @@ ufw enable
 
 # Clean up
 echo "#### Cleaning Up ####"
-apt remove --purge -y expect
-apt autoremove -y
-apt clean
-apt autoclean
+apt-get remove --purge -y expect
+apt-get autoremove -y
+apt-get clean
+apt-get autoclean
 
 echo "#### Install Complete! ####"
 
