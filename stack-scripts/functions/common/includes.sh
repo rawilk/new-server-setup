@@ -19,5 +19,11 @@ function include_github_script() {
     fi
 
     local URI="$BASE$1"
-    curl ${URI} >> \n\n${OUTPUT}
+
+    if [[ -s $OUTPUT ]]; then
+        echo "" >> $OUTPUT
+        echo "" >> $OUTPUT
+    fi
+
+    curl ${URI} >> ${OUTPUT}
 }
