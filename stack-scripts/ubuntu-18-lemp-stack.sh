@@ -31,203 +31,196 @@
 #<UDF name="ssl" label="Install SSL Cert" oneOf="no,yes" default="yes">
 #<UDF name="ssl_email" label="SSL Renewal and Security Notices Email" default="">
 
-# This sets the variable $IPADDR to the IPv4 address the new Linode receives.
-IPADDR=$(hostname -I | cut -f1 -d' ')
+IS_UBUNTU=false
 
-# This sets the variable $IPADDR6 to the IPv6 address the new Linode receives.
-IPADDR6=$(hostname -I | cut -f2 -d' ')
+function determine_os() {
+    if [ -f /etc/os-release ]; then
+        . /etc/os-release
+        OS=$NAME
 
-# Redirect output of this script to our logfile
-exec &> /root/stackscript.log
+        if [[ ${OS} == Ubuntu* ]]; then
+            IS_UBUNTU=true
+        fi
+    else
+        echo Unable to determine Linux distribution
+        exit
+    fi
+}
 
-echo "#### Install Start ####"
+function install_debian() {
+    echo "#### Installing Packages For Debian ####"
 
-# Update the system
-apt-get update && apt-get upgrade -y
+    apt-get install -y ntp ufw software-properties-common
+}
 
-# Install expect (will be removed at the end)
-apt-get install -y expect
+function prevent_ip_spoofing() {
+    if [ ${IS_UBUNTU} = true ]; then
+        sed -i -e "s/order .*/order bind,hosts/" /etc/host.conf
+        sed -i -e "s/multi on/nospoof on/" /etc/host.conf
+    fi
+}
 
-# Set the hostname
-hostnamectl set-hostname $FQDN --static
+function update_system() {
+    apt-get update && apt-get upgrade -y
+}
 
-# This section sets the Fully Qualified Domain Name (FQDN) in the hosts file.
-echo $IPADDR $FQDN $HOSTNAME >> /etc/hosts
-echo $IPADDR6 $FQDN $HOSTNAME >> /etc/hosts
+function install_nginx() {
+    if [ ${IS_UBUNTU} = false ]; then
+        add-apt-repository 'deb http://nginx.org/packages/debian/ stretch nginx'
+        wget http://nginx.org/keys/nginx_signing.key
+        apt-key add nginx_signing.key
 
-# Setup timezone
-timedatectl set-timezone "$TIMEZONE"
+        update_system
+    fi
 
-# Create the sudo user account
-adduser --disabled-password --gecos "" $SHELL_USER_NAME
-echo "$SHELL_USER_NAME:$SHELL_USER_PASSWORD" | chpasswd
-usermod -aG sudo $SHELL_USER_NAME
+    # Now we can install nginx
+    apt-get install -y nginx
+}
 
-# Harden Server
-if [ $ROOT_LOGIN = 'no' ]; then
-    sed -i -e "s/.*PermitRootLogin .*/PermitRootLogin no/" /etc/ssh/sshd_config
+function install_mariadb() {
+    export DEBIAN_FRONTEND=noninteractive
 
-    # Add shell user to allowed users in /etc/ssh/sshd_config
-    echo "AllowUsers $SHELL_USER_NAME" >> /etc/ssh/sshd_config
-fi
+    debconf-set-selections <<< "mariadb-server-10.3 mysql-server/root_password password $ROOT_DB_PASSWORD"
+    debconf-set-selections <<< "mariadb-server-10.3 mysql-server/root_password_again password $ROOT_DB_PASSWORD"
 
-sed -i -e "s/.*AddressFamily .*/AddressFamily inet/" /etc/ssh/sshd_config
-sed -i -e "s/.*LoginGraceTime .*/LoginGraceTime $LOGIN_GRACE_TIME/" /etc/ssh/sshd_config
-sed -i -e "s/.*ClientAliveInterval .*/ClientAliveInterval 600/" /etc/ssh/sshd_config
-sed -i -e "s/.*ClientAliveCountMax .*/ClientAliveCountMax 0/" /etc/ssh/sshd_config
+    if [ ${IS_UBUNTU} = true ]; then
+        add-apt-repository 'deb [arch=amd64] http://mirror.zol.co.zw/mariadb/repo/10.3/ubuntu bionic main'
+    else
+        apt-get install -y dirmngr
+    fi
 
-# Disable password login
-if [ $PASSWORD_LOGIN = 'no' ] && [ $SSH_PUB_KEY != '' ]; then
-    sed -i -e "s/.*PasswordAuthentication .*/PasswordAuthentication no/" /etc/ssh/sshd_config
-fi
+    apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xF1656F24C74CD1D8
 
-# Setup ssh keys
-if [ $SSH_PUB_KEY != '' ]; then
-    mkdir -p /root/.ssh
-    mkdir -p /home/$SHELL_USER_NAME/.ssh
-    echo "$SSH_PUB_KEY" > /root/.ssh/authorized_keys
-    echo "$SSH_PUB_KEY" > /home/$SHELL_USER_NAME/.ssh/authorized_keys
-    chmod -R 700 /root/.ssh
-    chmod -R 700 /home/${SHELL_USER_NAME}/.ssh
-    chown -R ${SHELL_USER_NAME}:${SHELL_USER_NAME} /home/${SHELL_USER_NAME}/.ssh
-fi
+    if [ ${IS_UBUNTU} = false ]; then
+        curl -sS https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | sudo bash
+    fi
 
-# Setup basic firewall
-if [ $SSH_PORT = '22' ]; then
-    ufw allow ssh
-else
-    sed -i -e "s/#Port 22/Port $SSH_PORT/" /etc/ssh/sshd_config
+    apt-get install -y mariadb-server mariadb-client
+}
 
-    ufw allow $SSH_PORT/tcp
-fi
+function configure_mariadb() {
+    # Run through the secure installation
+    SECURE_MYSQL=$(expect -c "
 
-# Prevent IP Spoofing
-sed -i -e "s/order .*/order bind,hosts/" /etc/host.conf
-sed -i -e "s/multi on/nospoof on/" /etc/host.conf
+    set timeout 3
+    spawn mysql_secure_installation
 
-# Restart ssh service to enable changes made
-systemctl restart sshd
+    expect \"Enter current password for root (enter for none):\"
+    send \"$ROOT_DB_PASSWORD\r\"
 
-# TODO: cron-apt
+    expect \"Change the root password?\"
+    send \"n\r\"
 
-# Setup fail2ban
-apt-get install -y fail2ban
-cp /etc/fail2ban/fail2ban.conf /etc/fail2ban/fail2ban.loal
-cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
-sed -i -e "s/backend = .*/backend = systemd/" /etc/fail2ban/jail.local
-systemctl enable fail2ban
-systemctl start fail2ban
+    expect \"Remove anonymous users?\"
+    send \"y\r\"
 
-# Fix backspace issue for shell scripts
-stty erase ^H
+    expect \"Disallow root login remotely?\"
+    send \"y\r\"
 
-# Setup FTP
-apt-get install -y vsftpd
+    expect \"Remove test database and access to it?\"
+    send \"y\r\"
 
-# Create FTP user
-adduser --disabled-password --gecos "" $FTP_USER_NAME
-echo "$FTP_USER_NAME:$FTP_USER_PASSWORD" | chpasswd
+    expect \"Reload privilege tables now?\"
+    send \"y\r\"
 
-# Update FTP settings
-sed -i -e "s/anonymous_enable=.*/anonymous_enable=NO/" /etc/vsftpd.conf
-sed -i -e "s/.*chroot_local_user=.*/chroot_local_user=YES/" /etc/vsftpd.conf
-sed -i -e "s/listen_ipv6=.*/#listen_ipv6=YES/" /etc/vsftpd.conf
-sed -i -e "s/listen=.*/listen=YES/" /etc/vsftpd.conf
+    expect eof
+    ")
 
-cat <<EOT >> /etc/vsftpd.conf
-allow_writeable_chroot=YES
-pasv_enable=YES
-pasv_min_port=40000
-pasv_max_port=40100
-EOT
+    echo "$SECURE_MYSQL"
 
-# Allow FTP through firewall
-ufw allow ftp
-ufw allow 20/tcp
-ufw allow 40000:40100/tcp
-
-# Start and enable FTP
-systemctl start vsftpd
-systemctl enable vsftpd
-
-# Install Nginx
-apt-get install -y nginx
-
-# Allow through firewall
-ufw allow 'Nginx HTTP'
-
-# Install MariaDB
-export DEBIAN_FRONTEND=noninteractive
-
-debconf-set-selections <<< "mariadb-server-10.3 mysql-server/root_password password $ROOT_DB_PASSWORD"
-debconf-set-selections <<< "mariadb-server-10.3 mysql-server/root_password_again password $ROOT_DB_PASSWORD"
-
-apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xF1656F24C74CD1D8
-add-apt-repository 'deb [arch=amd64] http://mirror.zol.co.zw/mariadb/repo/10.3/ubuntu bionic main'
-apt-get install -y mariadb-server mariadb-client
-
-# Run through the secure installation
-SECURE_MYSQL=$(expect -c "
-
-set timeout 3
-spawn mysql_secure_installation
-
-expect \"Enter current password for root (enter for none):\"
-send \"$ROOT_DB_PASSWORD\r\"
-
-expect \"Change the root password?\"
-send \"n\r\"
-
-expect \"Remove anonymous users?\"
-send \"y\r\"
-
-expect \"Disallow root login remotely?\"
-send \"y\r\"
-
-expect \"Remove test database and access to it?\"
-send \"y\r\"
-
-expect \"Reload privilege tables now?\"
-send \"y\r\"
-
-expect eof
-")
-
-echo "$SECURE_MYSQL"
-
-# Bind IP to mysql
+    # Bind IP to mysql
 cat <<EOT >> /etc/my.cnf
 [mysqld]
 bind-address=$IPADDR
 EOT
 
-# Restart mariadb
-systemctl restart mariadb
+    # Restart mariadb
+    systemctl restart mariadb
 
-# Allow mariadb through firewall
-ufw allow mysql
+    # Setup remote db access
+    mysql -u root -p$ROOT_DB_PASSWORD -e "GRANT ALL ON *.* TO '$DB_USER_NAME'@'%' IDENTIFIED BY '$DB_USER_PASSWORD' WITH GRANT OPTION;FLUSH PRIVILEGES;"
+}
 
-# Setup remote db access
-mysql -u root -p$ROOT_DB_PASSWORD -e "GRANT ALL ON *.* TO '$DB_USER_NAME'@'%' IDENTIFIED BY '$DB_USER_PASSWORD' WITH GRANT OPTION;FLUSH PRIVILEGES;"
+function configure_firewall() {
+    # Allow SSH Connections
+    if [ $SSH_PORT = '22' ]; then
+        ufw allow OpenSSH
+    else
+        ufw allow $SSH_PORT/tcp
+    fi
 
-# Install PHP (The order here matters; install php-fpm before php to avoid installing apache!)
-apt-get install -y php-fpm php-common php-bcmath php-gd php-mbstring php-xmlrpc php-mysql php-imagick php-xml php-zip
+    # Allow FTP through firewall
+    ufw allow ftp
+    ufw allow 20/tcp
+    ufw allow 40000:40100/tcp
 
-# Configure PHP
-sed -i -e "s/upload_max_filesize = 2M/upload_max_filesize = 64M/" /etc/php/7.2/fpm/php.ini
-sed -i -e "s/memory_limit = 128M/memory_limit = 512M/" /etc/php/7.2/fpm/php.ini
-sed -i -e "s/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/" /etc/php/7.2/fpm/php.ini
+    # Allow HTTP traffic through the firewall
+    ufw allow 'Nginx HTTP'
 
-# Configure PHP-FPM
-sed -i -e "s/user = .*/user = $FTP_USER_NAME/" /etc/php/7.2/fpm/pool.d/www.conf
-sed -i -e "s/group = .*/group = $FTP_USER_NAME/" /etc/php/7.2/fpm/pool.d/www.conf
-sed -i -e "s/;listen.owner = .*/listen.owner = $FTP_USER_NAME/" /etc/php/7.2/fpm/pool.d/www.conf
-sed -i -e "s/;listen.group = .*/listen.group = $FTP_USER_NAME/" /etc/php/7.2/fpm/pool.d/www.conf
+    # Allow mariadb through firewall
+    ufw allow mysql
 
-# Restart PHP-FPM
-systemctl restart php7.2-fpm
+    if [ $SSL = 'yes' ]; then
+        # Allow https traffic through firewall
+        ufw allow 'Nginx HTTPS'
+    fi
 
-# Configure Nginx
+    # Finally we can enable the firewall
+    ufw enable
+}
+
+function install_php() {
+    local PHP="php"
+
+    if [ ${IS_UBUNTU} = false ]; then
+        # Debian needs this for the newest php version
+        apt-get install -y apt-transport-https lsb-release ca-certificates
+        wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
+        echo "deb https://packages.sury.org/php/ \$(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/php.list
+
+        update_system
+
+        local PHP="php7.2"
+    fi
+
+    apt-get install -y ${PHP}-fpm ${PHP}-common ${PHP}-bcmath ${PHP}-gd ${PHP}-mbstring ${PHP}-xmlrpc ${PHP}-mysql ${PHP}-imagick ${PHP}-xml ${PHP}-zip
+}
+
+function configure_php() {
+    # php.ini
+    sed -i -e "s/upload_max_filesize = 2M/upload_max_filesize = 64M/" /etc/php/7.2/fpm/php.ini
+    sed -i -e "s/memory_limit = 128M/memory_limit = 512M/" /etc/php/7.2/fpm/php.ini
+    sed -i -e "s/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/" /etc/php/7.2/fpm/php.ini
+
+    # php-fpm config
+    sed -i -e "s/user = .*/user = $FTP_USER_NAME/" /etc/php/7.2/fpm/pool.d/www.conf
+    sed -i -e "s/group = .*/group = $FTP_USER_NAME/" /etc/php/7.2/fpm/pool.d/www.conf
+    sed -i -e "s/;listen.owner = .*/listen.owner = $FTP_USER_NAME/" /etc/php/7.2/fpm/pool.d/www.conf
+    sed -i -e "s/;listen.group = .*/listen.group = $FTP_USER_NAME/" /etc/php/7.2/fpm/pool.d/www.conf
+
+    # Restart PHP-FPM
+    systemctl restart php7.2-fpm
+}
+
+function init_site() {
+    # Init site folder
+    mkdir -p /home/$FTP_USER_NAME/logs
+    mkdir -p /home/$FTP_USER_NAME/public_html/public
+
+    # Create a test page
+    touch /home/$FTP_USER_NAME/public_html/public/index.php
+    echo "<?php phpinfo(); ?>" >> /home/$FTP_USER_NAME/public_html/public/index.php
+
+    # Give FTP user ownership of the folders
+    chown -R $FTP_USER_NAME:$FTP_USER_NAME /home/$FTP_USER_NAME
+    chown -R $FTP_USER_NAME:$FTP_USER_NAME /var/lib/php
+    chown -R $FTP_USER_NAME:$FTP_USER_NAME /var/lib/nginx
+
+    # Restart nginx
+    systemctl restart nginx
+}
+
+function configure_nginx() {
 truncate -s 0 /etc/nginx/nginx.conf
 cat <<EOT >> /etc/nginx/nginx.conf
 user $FTP_USER_NAME;
@@ -268,8 +261,9 @@ http {
     include /etc/nginx/conf.d/*.conf;
 }
 EOT
+}
 
-# Configure site server block
+function configure_site_server_block() {
 touch /etc/nginx/conf.d/$HOSTNAME.conf
 cat <<EOT >> /etc/nginx/conf.d/$HOSTNAME.conf
 server {
@@ -324,25 +318,11 @@ server {
     }
 }
 EOT
+}
 
-# Init site folder
-mkdir -p /home/$FTP_USER_NAME/logs
-mkdir -p /home/$FTP_USER_NAME/public_html/public
+function install_ssl_cert() {
+    print_info "Installing LetsEncrypt SSL Certificate"
 
-# Create a test page
-touch /home/$FTP_USER_NAME/public_html/public/index.php
-echo "<?php phpinfo(); ?>" >> /home/$FTP_USER_NAME/public_html/public/index.php
-
-# Give FTP user ownership of the folders
-chown -R $FTP_USER_NAME:$FTP_USER_NAME /home/$FTP_USER_NAME
-chown -R $FTP_USER_NAME:$FTP_USER_NAME /var/lib/php
-chown -R $FTP_USER_NAME:$FTP_USER_NAME /var/lib/nginx
-
-# Restart nginx
-systemctl restart nginx
-
-# Install SSL Cert
-if [ $SSL = 'yes' ]; then
     apt-get install -y python-certbot-nginx
 
     CERTBOT_INSTALL_COMMAND="certbot --nginx"
@@ -393,30 +373,186 @@ if [ $SSL = 'yes' ]; then
 
     # Restart nginx to enable changes
     systemctl restart nginx
+}
 
-    # Allow https traffic through firewall
-    ufw allow 'Nginx HTTPS'
+function install_composer() {
+    print_info "Installing Composer"
+    cd /tmp
+    curl -sS https://getcomposer.org/installer | php
+    mv composer.phar /usr/local/bin/composer
+}
+
+function install_node() {
+    print_info "Installing NodeJS & NPM"
+    curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
+    apt-get install -y nodejs
+    npm install npm@latest -g
+}
+
+function clean_up() {
+    print_info "Cleaning Up"
+    apt-get remove --purge -y expect
+    apt-get autoremove -y
+    apt-get clean
+    apt-get autoclean
+}
+
+function print_info() {
+    echo "#### $1 ####"
+}
+
+# Redirect output of this script to our logfile
+exec &> /root/stackscript.log
+
+echo "#### Install Start ####"
+
+# Determine what os we are using
+determine_os
+
+# Update the system
+update_system
+
+# This sets the variable $IPADDR to the IPv4 address the new Linode receives.
+IPADDR=$(hostname -I | cut -f1 -d' ')
+
+# This sets the variable $IPADDR6 to the IPv6 address the new Linode receives.
+IPADDR6=$(hostname -I | cut -f2 -d' ')
+
+# If this is a debian distro, we need to install extra stuff
+if [ ${IS_UBUNTU} = false ]; then
+    install_debian
+fi
+
+# Install expect (will be removed at the end)
+apt-get install -y expect
+
+# Set the hostname
+hostnamectl set-hostname $FQDN --static
+
+# This section sets the Fully Qualified Domain Name (FQDN) in the hosts file.
+echo $IPADDR $FQDN $HOSTNAME >> /etc/hosts
+echo $IPADDR6 $FQDN $HOSTNAME >> /etc/hosts
+
+# Setup timezone
+timedatectl set-timezone "$TIMEZONE"
+
+# Create the sudo user account
+adduser --disabled-password --gecos "" $SHELL_USER_NAME
+echo "$SHELL_USER_NAME:$SHELL_USER_PASSWORD" | chpasswd
+usermod -aG sudo $SHELL_USER_NAME
+
+# Harden Server
+if [ $ROOT_LOGIN = 'no' ]; then
+    sed -i -e "s/.*PermitRootLogin .*/PermitRootLogin no/" /etc/ssh/sshd_config
+
+    # Add shell user to allowed users in /etc/ssh/sshd_config
+    echo "AllowUsers $SHELL_USER_NAME" >> /etc/ssh/sshd_config
+fi
+
+sed -i -e "s/.*AddressFamily .*/AddressFamily inet/" /etc/ssh/sshd_config
+sed -i -e "s/.*LoginGraceTime .*/LoginGraceTime $LOGIN_GRACE_TIME/" /etc/ssh/sshd_config
+sed -i -e "s/.*ClientAliveInterval .*/ClientAliveInterval 600/" /etc/ssh/sshd_config
+sed -i -e "s/.*ClientAliveCountMax .*/ClientAliveCountMax 0/" /etc/ssh/sshd_config
+
+# Disable password login
+if [ $PASSWORD_LOGIN = 'no' ] && [ $SSH_PUB_KEY != '' ]; then
+    sed -i -e "s/.*PasswordAuthentication .*/PasswordAuthentication no/" /etc/ssh/sshd_config
+fi
+
+# Setup ssh keys
+if [ $SSH_PUB_KEY != '' ]; then
+    mkdir -p /root/.ssh
+    mkdir -p /home/$SHELL_USER_NAME/.ssh
+    echo "$SSH_PUB_KEY" > /root/.ssh/authorized_keys
+    echo "$SSH_PUB_KEY" > /home/$SHELL_USER_NAME/.ssh/authorized_keys
+    chmod -R 700 /root/.ssh
+    chmod -R 700 /home/${SHELL_USER_NAME}/.ssh
+    chown -R ${SHELL_USER_NAME}:${SHELL_USER_NAME} /home/${SHELL_USER_NAME}/.ssh
+fi
+
+if [ $SSH_PORT != '22' ]; then
+    sed -i -e "s/#Port 22/Port $SSH_PORT/" /etc/ssh/sshd_config
+fi
+
+# Prevent IP Spoofing
+prevent_ip_spoofing
+
+# Restart ssh service to enable changes made
+systemctl restart sshd
+
+# TODO: cron-apt
+
+# Setup fail2ban
+apt-get install -y fail2ban
+cp /etc/fail2ban/fail2ban.conf /etc/fail2ban/fail2ban.local
+cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
+sed -i -e "s/backend = .*/backend = systemd/" /etc/fail2ban/jail.local
+systemctl restart fail2ban
+
+# Fix backspace issue for shell scripts
+stty erase ^H
+
+# Setup FTP
+apt-get install -y vsftpd
+
+# Create FTP user
+adduser --disabled-password --gecos "" $FTP_USER_NAME
+echo "$FTP_USER_NAME:$FTP_USER_PASSWORD" | chpasswd
+
+# Update FTP settings
+sed -i -e "s/anonymous_enable=.*/anonymous_enable=NO/" /etc/vsftpd.conf
+sed -i -e "s/.*chroot_local_user=.*/chroot_local_user=YES/" /etc/vsftpd.conf
+sed -i -e "s/listen_ipv6=.*/#listen_ipv6=YES/" /etc/vsftpd.conf
+sed -i -e "s/listen=.*/listen=YES/" /etc/vsftpd.conf
+
+cat <<EOT >> /etc/vsftpd.conf
+allow_writeable_chroot=YES
+pasv_enable=YES
+pasv_min_port=40000
+pasv_max_port=40100
+EOT
+
+# Restart vsftpd service
+systemctl restart vsftpd
+
+# Install Nginx
+install_nginx
+
+# Install MariaDB
+install_mariadb
+configure_mariadb
+
+# Install PHP
+install_php
+
+# Configure PHP & PHP-FPM
+configure_php
+
+# Configure Nginx
+configure_nginx
+
+# Configure site server block
+configure_site_server_block
+
+# Initialize site
+init_site
+
+# Install SSL Cert
+if [ $SSL = 'yes' ]; then
+    install_ssl_cert
 fi
 
 # Install composer
-cd /tmp
-curl -sS https://getcomposer.org/installer | php
-mv composer.phar /usr/local/bin/composer
+install_composer
 
 # Install Node and NPM
-curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
-apt-get install -y nodejs
-npm install npm@latest -g
+install_node
 
-# Enable the firewall
-ufw enable
+# Configure the firewall
+configure_firewall
 
 # Clean up
-echo "#### Cleaning Up ####"
-apt-get remove --purge -y expect
-apt-get autoremove -y
-apt-get clean
-apt-get autoclean
+clean_up
 
 echo "#### Install Complete! ####"
 
