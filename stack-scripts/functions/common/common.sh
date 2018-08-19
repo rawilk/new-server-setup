@@ -3,7 +3,7 @@
 # Determine which Linux distro we are using
 function determine_os() {
     if [ -f /etc/os-release ]; then
-        . etc/os-release
+        . /etc/os-release
         OS=$NAME
     else
         echo Unable to determine Linux Distribution
