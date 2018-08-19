@@ -21,6 +21,24 @@ function determine_os() {
 }
 
 ##############################################
+# Sets variables for the ipv4 and ipv6 ip
+# address the new Linode receives.
+# Globals:
+#    IPADDR, IPADDR6
+# Arguments:
+#   None
+# Returns:
+#   None
+#############################################
+function determine_ip() {
+    # This sets the variable $IPADDR to the IPv4 address the new Linode receives.
+    IPADDR=$(hostname -I | cut -f1 -d' ')
+
+    # This sets the variable $IPADDR6 to the IPv6 address the new Linode receives.
+    IPADDR6=$(hostname -I | cut -f2 -d' ')
+}
+
+##############################################
 # Prints the given argument for consistent
 # messages
 # Globals:
@@ -36,5 +54,6 @@ function print_info() {
     echo
 }
 
-# Run to set the OS variable
+# Set the global variables
 determine_os
+determine_ip
