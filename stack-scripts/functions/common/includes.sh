@@ -18,5 +18,7 @@ function include_github_script() {
         local OUTPUT="$2"
     fi
 
-    curl ${BASE}$1 >> ${OUTPUT}
+    local URI="$BASE $1"
+    echo "Curl to: ${URI}"
+    curl ${URI} >> ${OUTPUT}
 }
