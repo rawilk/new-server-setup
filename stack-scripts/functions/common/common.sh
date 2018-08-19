@@ -17,3 +17,5 @@ function print_info() {
     echo "#### $1 ####"
     echo
 }
+
+determine_os
