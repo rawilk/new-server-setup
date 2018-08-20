@@ -123,3 +123,16 @@ function install_nginx() {
 
     apt-get install -y nginx
 }
+
+##############################################
+# Restart the nginx web server.
+# Globals:
+#    None
+# Arguments:
+#   None
+# Returns:
+#   None
+#############################################
+function restart_nginx() {
+    systemctl restart nginx
+}
