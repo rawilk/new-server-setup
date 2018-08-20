@@ -54,7 +54,7 @@ function basic_setup() {
     install_temp_packages
 
     # Fix backspace issue for shell scripts in terminal
-    ssty erase ^H
+    #ssty erase ^H
 
     set_timezone
     init_hosts
