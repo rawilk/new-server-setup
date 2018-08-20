@@ -70,7 +70,7 @@ function basic_setup() {
 #   None
 #############################################
 function update_system() {
-    apt-get update -y && apt-get upgrade -y
+    DEBIAN_FRONTEND=noninteractive apt-get update -y && apt-get upgrade -y
 }
 
 ##############################################
