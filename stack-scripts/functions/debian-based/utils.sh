@@ -2,6 +2,23 @@
 # Author: Randall Wilk <randall@randallwilk.com>
 
 ##############################################
+# Install Composer
+# Globals:
+#    None
+# Arguments:
+#   None
+# Returns:
+#   None
+#############################################
+function install_composer() {
+    print_info "Installing Composer"
+
+    cd /tmp
+    curl -sS https://getcomposer.org/installer | php
+    mv composer.phar /usr/local/bin/composer
+}
+
+##############################################
 # Install fail2ban
 # Globals:
 #    None
@@ -21,6 +38,23 @@ function install_fail2ban() {
 }
 
 ##############################################
+# Install NodeJS and NPM.
+# Globals:
+#    None
+# Arguments:
+#   None
+# Returns:
+#   None
+#############################################
+function install_node() {
+    print_info "Installing NodeJS & NPM"
+
+    curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
+    apt-get install -y nodejs
+    npm install npm@latest -g
+}
+
+##############################################
 # Run all util install functions.
 # Globals:
 #    None
@@ -30,5 +64,7 @@ function install_fail2ban() {
 #   None
 #############################################
 function install_utils() {
+    install_composer
     install_fail2ban
+    install_node
 }
