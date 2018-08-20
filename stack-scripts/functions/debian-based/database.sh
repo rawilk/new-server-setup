@@ -85,6 +85,8 @@ EOT
 #   None
 #############################################
 function setup_database() {
+    print_info "Installing MariaDB"
+
     install_mariadb
     configure_mariadb
 }

@@ -136,3 +136,30 @@ function install_nginx() {
 function restart_nginx() {
     systemctl restart nginx
 }
+
+##############################################
+# Initialize the site with a basic index.php
+# file so we can see the site is ready to go.
+# Globals:
+#    None
+# Arguments:
+#   None
+# Returns:
+#   None
+#############################################
+function init_site() {
+    # Init site folder
+    mkdir -p /home/$FTP_USER_NAME/logs
+    mkdir -p /home/$FTP_USER_NAME/public_html/public
+
+    # Create a test page
+    touch /home/$FTP_USER_NAME/public_html/public/index.php
+    echo "<?php phpinfo(); ?>" >> /home/$FTP_USER_NAME/public_html/public/index.php
+
+    # Give FTP user ownership of the folders
+    chown -R $FTP_USER_NAME:$FTP_USER_NAME /home/$FTP_USER_NAME
+    chown -R $FTP_USER_NAME:$FTP_USER_NAME /var/lib/php
+    chown -R $FTP_USER_NAME:$FTP_USER_NAME /var/lib/nginx
+
+    restart_nginx
+}
