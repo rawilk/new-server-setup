@@ -15,6 +15,7 @@ include_github_script stack-scripts/functions/debian-based/users.sh
 include_github_script stack-scripts/functions/debian-based/utils.sh
 include_github_script stack-scripts/functions/debian-based/ftp.sh
 include_github_script stack-scripts/functions/debian-based/nginx.sh
+include_github_script stack-scripts/functions/debian-based/database.sh
 
 # Finally include the file created for the functions
 . /root/stackfunctions.sh
