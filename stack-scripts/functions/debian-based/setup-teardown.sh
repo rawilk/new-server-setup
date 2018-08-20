@@ -70,7 +70,9 @@ function basic_setup() {
 #   None
 #############################################
 function update_system() {
-    DEBIAN_FRONTEND=noninteractive apt-get update -y && apt-get upgrade -y
+    print_info "Updating System"
+    DEBIAN_FRONTEND=noninteractive apt-get update && apt-get upgrade -y
+    print_info "Update complete"
 }
 
 ##############################################
