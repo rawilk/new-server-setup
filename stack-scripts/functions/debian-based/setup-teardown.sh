@@ -55,6 +55,9 @@ function basic_setup() {
 
     # Fix backspace issue for shell scripts in terminal
     ssty erase ^H
+
+    set_timezone
+    init_hosts
 }
 
 ##############################################
