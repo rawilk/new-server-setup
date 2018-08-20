@@ -56,6 +56,7 @@ function basic_setup() {
     # Fix backspace issue for shell scripts in terminal
     ssty erase ^H
 }
+
 ##############################################
 # Update and upgrade the system packages.
 # Globals:
