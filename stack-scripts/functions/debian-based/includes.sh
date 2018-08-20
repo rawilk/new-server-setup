@@ -13,6 +13,7 @@ include_github_script stack-scripts/functions/debian-based/setup-teardown.sh
 include_github_script stack-scripts/functions/debian-based/harden-server.sh
 include_github_script stack-scripts/functions/debian-based/users.sh
 include_github_script stack-scripts/functions/debian-based/utils.sh
+include_github_script stack-scripts/functions/debian-based/ftp.sh
 
 # Finally include the file created for the functions
 . /root/stackfunctions.sh
