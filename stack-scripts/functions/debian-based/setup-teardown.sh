@@ -102,7 +102,7 @@ function cleanup() {
 #   None
 #############################################
 function reboot_system() {
-    print_info "Rebooting System..."
+    print_info "Install Complete! Rebooting System..."
 
     sleep 5
     reboot
