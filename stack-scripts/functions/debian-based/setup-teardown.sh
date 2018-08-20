@@ -45,12 +45,16 @@ function install_temp_packages() {
 #   None
 #############################################
 function basic_setup() {
+    print_info "Performing Basic Setup"
+
+    if [[ ${IS_UBUNTU} ]]; then
+       apt-get remove -y --purge keyboard-configuration
+    fi
+
     update_system
 
     if [[ ${IS_UBUNTU} = false ]]; then
         init_debian
-    else
-        apt-get remove -y --purge keyboard-configuration
     fi
 
     install_temp_packages
