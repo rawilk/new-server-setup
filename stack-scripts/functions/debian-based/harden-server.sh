@@ -26,7 +26,7 @@ function harden_server() {
     prevent_root_ssh_login
     basic_server_ssh_harden
     set_ssh_port
-    prevent_ip_spoofing
+    # prevent_ip_spoofing
     disable_ssh_password_login
 
     restart_ssh
