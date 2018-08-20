@@ -78,5 +78,7 @@ function restart_php_fpm() {
 function setup_php() {
     install_php
     configure_php
+    configure_nginx
+    configure_site_server_block
     init_site
 }
