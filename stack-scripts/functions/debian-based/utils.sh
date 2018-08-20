@@ -68,19 +68,3 @@ function install_utils() {
     install_fail2ban
     install_node
 }
-
-##############################################
-# Reboot the system.
-# Globals:
-#    None
-# Arguments:
-#   None
-# Returns:
-#   None
-#############################################
-function reboot_system() {
-    print_info "Rebooting System..."
-
-    sleep 5
-    reboot
-}

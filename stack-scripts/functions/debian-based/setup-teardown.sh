@@ -91,3 +91,19 @@ function cleanup() {
     apt-get clean
     apt-get autoclean
 }
+
+##############################################
+# Reboot the system.
+# Globals:
+#    None
+# Arguments:
+#   None
+# Returns:
+#   None
+#############################################
+function reboot_system() {
+    print_info "Rebooting System..."
+
+    sleep 5
+    reboot
+}
