@@ -36,6 +36,27 @@ function install_temp_packages() {
 }
 
 ##############################################
+# Run basic setup operations.
+# Globals:
+#    None
+# Arguments:
+#   None
+# Returns:
+#   None
+#############################################
+function basic_setup() {
+    update_system
+
+    if [[ ${IS_UBUNTU} = false ]]; then
+        init_debian
+    fi
+
+    install_temp_packages
+
+    # Fix backspace issue for shell scripts in terminal
+    ssty erase ^H
+}
+##############################################
 # Update and upgrade the system packages.
 # Globals:
 #    None
