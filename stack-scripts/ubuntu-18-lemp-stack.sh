@@ -20,7 +20,7 @@ exec &> /root/stackscript.log
 
 curl -o /root/debian-includes.sh -L https://raw.githubusercontent.com/rawilk/new-server-setup/master/stack-scripts/functions/debian-based/includes.sh
 
-. /root/debian-includes
+. /root/debian-includes.sh
 
 print_info "Install Start"
 
