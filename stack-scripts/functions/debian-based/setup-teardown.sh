@@ -47,7 +47,7 @@ function install_temp_packages() {
 function basic_setup() {
     print_info "Performing Basic Setup"
 
-    if [[ ${IS_UBUNTU} ]]; then
+    if [[ ${IS_UBUNTU} = true ]]; then
        apt-get remove -y --purge keyboard-configuration
     fi
 
