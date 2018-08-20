@@ -27,6 +27,44 @@ function harden_server() {
     basic_server_ssh_harden
     set_ssh_port
     prevent_ip_spoofing
+    disable_ssh_password_login
 
     restart_ssh
+}
+
+##############################################
+# Configure all the firewall rules
+# Globals:
+#    None
+# Arguments:
+#   None
+# Returns:
+#   None
+#############################################
+function configure_firewall() {
+    # Allow SSH connections
+    if [[ $SSH_PORT = '22' ]]; then
+        ufw allow OpenSSH
+    else
+        ufw allow $SSH_PORT/tcp
+    fi
+
+    # Allow FTP through firewall
+    ufw allow ftp
+    ufw allow 20/tcp
+    ufw allow 40000:40100/tcp
+
+    # Allow HTTP traffic through firewall
+    ufw allow 'Nginx HTTP'
+
+    # Allow database through firewall
+    ufw allow mysql
+
+    if [[ $SSL = 'yes' ]]; then
+        # Allow HTTPS traffic through firewall
+        ufw allow 'Nginx HTTPS'
+    fi
+
+    # Enable the firewall
+    ufw enable
 }

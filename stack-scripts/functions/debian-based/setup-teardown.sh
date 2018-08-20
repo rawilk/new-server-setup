@@ -22,6 +22,20 @@ function init_debian() {
 }
 
 ##############################################
+# Install packages that will be purged after
+# install.
+# Globals:
+#    None
+# Arguments:
+#   None
+# Returns:
+#   None
+#############################################
+function install_temp_packages() {
+    apt-get install -y expect
+}
+
+##############################################
 # Update and upgrade the system packages.
 # Globals:
 #    None
