@@ -18,7 +18,7 @@
 function init_debian() {
     print_info "Installing packages needed for Debian"
 
-    apt-get install -y ntp ufw software-properties-common
+    apt-get install -y ufw software-properties-common
 }
 
 ##############################################

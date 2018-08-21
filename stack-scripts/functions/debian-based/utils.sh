@@ -55,6 +55,21 @@ function install_node() {
 }
 
 ##############################################
+# Install NTP date sync
+# Globals:
+#    None
+# Arguments:
+#   None
+# Returns:
+#   None
+#############################################
+function install_ntp() {
+    print_info "Installing NTP"
+
+    apt-get install -y ntp
+}
+
+##############################################
 # Run all util install functions.
 # Globals:
 #    None
@@ -67,4 +82,5 @@ function install_utils() {
     install_composer
     install_fail2ban
     install_node
+    install_ntp
 }
