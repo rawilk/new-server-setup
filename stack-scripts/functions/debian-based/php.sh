@@ -19,7 +19,7 @@ function install_php() {
         # Debian needs this for the newest php version
         apt-get install -y apt-transport-https lsb-release ca-certificates
         wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
-        echo "deb https://packages.sury.org/php/ \$(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/php.list
+        echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/php.list
 
         update_system
 
