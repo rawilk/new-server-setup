@@ -15,14 +15,13 @@ function install_mariadb() {
 
     debconf-set-selections <<< "mariadb-server-10.3 mysql-server/root_password password $ROOT_DB_PASSWORD"
     debconf-set-selections <<< "mariadb-server-10.3 mysql-server/root_password_again password $ROOT_DB_PASSWORD"
+    apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xF1656F24C74CD1D8
 
     if [[ ${IS_UBUNTU} = true ]]; then
         add-apt-repository 'deb [arch=amd64] http://mirror.zol.co.zw/mariadb/repo/10.3/ubuntu bionic main'
     else
         apt-get install -y dirmngr
     fi
-
-    apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xF1656F24C74CD1D8
 
     if [[ ${IS_UBUNTU} = false ]]; then
         curl -sS https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | sudo bash
