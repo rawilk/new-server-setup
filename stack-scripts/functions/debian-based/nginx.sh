@@ -163,3 +163,19 @@ function init_site() {
 
     restart_nginx
 }
+
+##############################################
+# Set up nginx and site server blocks to serve
+# a test page.
+# Globals:
+#    None
+# Arguments:
+#   None
+# Returns:
+#   None
+#############################################
+function setup_site() {
+    configure_nginx
+    configure_site_server_block
+    init_site
+}

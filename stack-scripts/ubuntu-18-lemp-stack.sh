@@ -5,6 +5,7 @@
 # Debian based server.
 #
 # Compatible with:
+#    - Ubuntu 16.04 LTS
 #    - Ubuntu 18.04 LTS
 #    - Debian 9
 #
@@ -12,7 +13,7 @@
 #
 # Author: Randall Wilk <randall@randallwilk.com>
 # Date: 08/16/2018
-# Last Updated: 08/19/2018
+# Last Updated: 08/20/2018
 ##################################################################
 
 # Redirect output of this script to our logfile
@@ -30,6 +31,7 @@ setup_ftp
 install_nginx
 setup_database
 setup_php
+setup_site
 
 if [[ $SSL = 'yes' ]]; then
     install_ssl_cert
