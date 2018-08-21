@@ -4,7 +4,7 @@
 ##############################################
 # Determine which Linux distro is being used
 # Globals:
-#    OS
+#    OS, OS_VERSION
 # Arguments:
 #   None
 # Returns:
@@ -14,6 +14,7 @@ function determine_os() {
     if [[ -f /etc/os-release ]]; then
         . /etc/os-release
         OS=$NAME
+        OS_VERSION=$VERSION_ID
     else
         echo Unable to determine Linux Distribution
         exit
