@@ -26,7 +26,7 @@ function install_php() {
         local PHP="php7.2"
     elif [[ ${OS_VERSION} == 16* ]]; then
         # Ubuntu 16.04 ships with 7.0 by default
-        add-apt-repository ppa:ondrej/php
+        add-apt-repository -y ppa:ondrej/php
         update_system
 
         local PHP="php7.2"
