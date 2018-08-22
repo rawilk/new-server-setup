@@ -1,0 +1,104 @@
+#!/usr/bin/env bash
+# Author: Randall Wilk <randall@randallwilk.com>
+
+##############################################
+# Run initial setup operations.
+# Globals:
+#    None
+# Arguments:
+#   None
+# Returns:
+#   None
+#############################################
+function basic_setup() {
+    print_info "Performing Basic Setup"
+
+    if [[ ${SELINUX} = 'no' ]]; then
+        disable_selinux
+    fi
+
+    update_system
+    install_needfulls
+    install_temp_packages
+
+    # Fix backspace issue for shell scripts in terminal
+    stty erase ^H
+
+    set_timezone
+    init_hosts
+}
+
+##############################################
+# Install packages that will be purged after
+# install.
+# Globals:
+#    None
+# Arguments:
+#   None
+# Returns:
+#   None
+#############################################
+function install_temp_packages() {
+    yum install -y expect
+}
+
+##############################################
+# Install packages to help installation
+# run smoothly.
+# Globals:
+#    None
+# Arguments:
+#   None
+# Returns:
+#   None
+#############################################
+function install_needfulls() {
+    yum install -y epel-release yum-utils wget
+}
+
+##############################################
+# Update system packages.
+# Globals:
+#    None
+# Arguments:
+#   None
+# Returns:
+#   None
+#############################################
+function update_system() {
+    yum update -y
+}
+
+##############################################
+# Remove some unneeded packages and clean up
+# the system.
+# Globals:
+#    None
+# Arguments:
+#   None
+# Returns:
+#   None
+#############################################
+function cleanup() {
+    print_info "Cleaning Up"
+
+    yum remove -y expect
+    yum clean all
+    rm -rf /var/cache/yum
+}
+
+##############################################
+# Reboot the system.
+# Globals:
+#    None
+# Arguments:
+#   None
+# Returns:
+#   None
+#############################################
+function reboot_system() {
+    print_info "Install Complete! Rebooting System..."
+
+    sleep 5
+    reboot
+}
