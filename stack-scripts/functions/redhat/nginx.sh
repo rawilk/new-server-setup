@@ -119,7 +119,7 @@ EOT
 #   None
 #############################################
 function install_nginx() {
-    yum install -y nginx
+    $PKG_MANAGER install -y nginx
 }
 
 ##############################################

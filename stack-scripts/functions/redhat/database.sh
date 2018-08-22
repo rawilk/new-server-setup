@@ -12,10 +12,17 @@
 #############################################
 function install_mariadb() {
     touch /etc/yum.repos.d/MariaDB.repo
+
+    local BASEURL='http://yum.mariadb.org/10.3/centos7-amd64'
+
+    if [[ ${IS_FEDORA} = true ]]; then
+        local BASEURL='http://yum.mariadb.org/10.3/fedora28-amd64'
+    fi
+
     cat <<EOT >> /etc/yum.repos.d/MariaDB.repo
 [mariadb]
 name=MariaDB
-baseurl=http://yum.mariadb.org/10.3/centos7-amd64
+baseurl=${BASEURL}
 gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
 gpgcheck=1
 EOT

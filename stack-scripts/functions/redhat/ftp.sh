@@ -34,7 +34,7 @@ EOT
 #   None
 #############################################
 function install_ftp() {
-    yum install -y vsftpd
+    $PKG_MANAGER install -y vsftpd
 }
 
 ##############################################

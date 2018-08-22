@@ -2,8 +2,16 @@
 # Author: Randall Wilk <randall@randallwilk.com>
 
 function install_php() {
-    rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
-    yum install -y php72w-fpm php72w-common php72w-bcmath php72w-gd php72w-mbstring php72w-xmlrpc php72w-mysql php72w-pdo php72w-pecl-imagick php72w-xml
+    local PHP='php72w'
+
+    if [[ ${IS_FEDORA} = true ]]; then
+        dnf config-manager --set-enabled remi-php72
+        local PHP='php'
+    else
+        rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
+    fi
+
+    $PKG_MANAGER install -y ${PHP}-fpm ${PHP}-common ${PHP}-bcmath ${PHP}-gd ${PHP}-mbstring ${PHP}-xmlrpc ${PHP}-mysql ${PHP}-pdo ${PHP}-pecl-imagick ${PHP}-xml
 }
 
 ##############################################

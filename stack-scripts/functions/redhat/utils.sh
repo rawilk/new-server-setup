@@ -30,12 +30,11 @@ function install_composer() {
 function install_fail2ban() {
     print_info "Installing fail2ban"
 
-    yum -y install fail2ban
+    $PKG_MANAGER install -y fail2ban
     cp /etc/fail2ban/fail2ban.conf /etc/fail2ban/fail2ban.loal
     cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
     sed -i -e "s/backend = .*/backend = systemd/" /etc/fail2ban/jail.local
-    systemctl enable fail2ban
-    systemctl start fail2ban
+    start_service fail2ban
 }
 
 ##############################################
@@ -50,7 +49,7 @@ function install_fail2ban() {
 function install_htop() {
     print_info "Installing htop"
     
-    yum install -y htop
+    $PKG_MANAGER install -y htop
 }
 
 ##############################################
@@ -66,7 +65,7 @@ function install_node() {
     print_info "Installing NodeJS & NPM"
 
     curl --silent --location https://rpm.nodesource.com/setup_10.x | sudo bash -
-    yum install -y nodejs
+    $PKG_MANAGER install -y nodejs
     npm install npm@latest -g
 }
 
@@ -82,9 +81,8 @@ function install_node() {
 function install_ntp() {
     print_info "Installing NTP"
     
-    yum install -y ntp
-    systemctl start ntpd
-    systemctl enable ntpd
+    $PKG_MANAGER install -y ntp
+    start_service ntpd
 }
 
 ##############################################
@@ -119,7 +117,10 @@ function install_utils() {
     install_htop
     install_node
     install_ntp
-    install_yum_cron
+
+    if [[ ${IS_FEDORA} = false ]]; then
+        install_yum_cron
+    fi
 }
 
 ##############################################

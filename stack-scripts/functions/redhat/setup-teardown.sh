@@ -39,7 +39,7 @@ function basic_setup() {
 #   None
 #############################################
 function install_temp_packages() {
-    yum install -y expect
+    $PKG_MANAGER install -y expect
 }
 
 ##############################################
@@ -53,7 +53,12 @@ function install_temp_packages() {
 #   None
 #############################################
 function install_needfulls() {
-    yum install -y epel-release yum-utils wget
+    if [[ ${IS_FEDORA} = true ]]; then
+        wget http://rpms.remirepo.net/fedora/remi-release-28.rpm
+        dnf install -y remi-release-28.rpm dnf-plugins-core
+    else
+        yum install -y epel-release yum-utils wget
+    fi
 }
 
 ##############################################
@@ -66,7 +71,11 @@ function install_needfulls() {
 #   None
 #############################################
 function update_system() {
-    yum update -y
+    if [[ ${IS_FEDORA} = true ]]; then
+        dnf upgrade -y
+    else
+        yum update -y
+    fi
 }
 
 ##############################################

@@ -20,3 +20,12 @@ include_github_script stack-scripts/functions/redhat/php.sh
 
 # Finally, include the file created for the functions
 . /root/stackfunctions.sh
+
+# Determine if we are setting up Fedora or CentOS
+IS_FEDORA=false
+PKG_MANAGER='yum'
+
+if [[ ${OS} == Fedora* ]]; then
+    IS_FEDORA=true
+    PKG_MANAGER='dnf'
+fi

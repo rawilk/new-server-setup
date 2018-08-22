@@ -110,7 +110,7 @@ function configure_firewall() {
 #   None
 #############################################
 function install_ssl_cert() {
-    yum -y install certbot-nginx
+    $PKG_MANAGER install -y certbot-nginx
 
     SSL_INSTALL=$(expect -c "
 
