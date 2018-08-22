@@ -27,7 +27,7 @@ gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
 gpgcheck=1
 EOT
 
-    yum install -y mariadb mariadb-server
+    $PKG_MANAGER install -y mariadb mariadb-server
     start_service mariadb
 }
 
