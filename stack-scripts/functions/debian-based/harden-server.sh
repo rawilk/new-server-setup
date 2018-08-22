@@ -38,14 +38,22 @@ function configure_firewall() {
     ufw allow 40000:40100/tcp
 
     # Allow HTTP traffic through firewall
-    ufw allow 'Nginx HTTP'
+    if [[ ${IS_UBUNTU} = true ]]; then
+        ufw allow 'Nginx HTTP'
+    else
+        ufw allow 80/tcp
+    fi
 
     # Allow database through firewall
     ufw allow mysql
 
     if [[ $SSL = 'yes' ]]; then
         # Allow HTTPS traffic through firewall
-        ufw allow 'Nginx HTTPS'
+        if [[ ${IS_UBUNTU} = true ]]; then
+            ufw allow 'Nginx HTTPS'
+        else
+            ufw allow 443/tcp
+        fi
     fi
 
     # Enable the firewall
