@@ -16,7 +16,7 @@
 #   None
 #############################################
 function init_debian() {
-    print_info "Installing packages needed for Debian or Older Versions of Ubuntu"
+    print_info "Installing packages needed for Debian 9"
 
     apt-get install -y ufw software-properties-common
 }
@@ -53,8 +53,8 @@ function basic_setup() {
 
     update_system
 
-    if [[ ${IS_UBUNTU} = false ]] || [[ ${OS_VERSION} == 16* ]]; then
-        # Debian & Ubuntu 16.04 do not have some packages that Ubuntu 18.04 has pre-installed
+    if [[ ${IS_UBUNTU} = false ]]; then
+        # Debian 9 does not have some packages that Ubuntu 18.04 has pre-installed
         init_debian
     fi
 

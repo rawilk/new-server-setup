@@ -1,19 +1,18 @@
 #!/usr/bin/env bash
 
 ####################################################################
+# Author: Randall Wilk <randall@randallwilk.com>
+# Date: 08/16/2018
+# Last Updated: 08/21/2018
+#
 # Linode stack script to configure and install a LEMP stack on a
 # Debian based server.
 #
 # Compatible with:
-#    - Ubuntu 16.04 LTS
 #    - Ubuntu 18.04 LTS
 #    - Debian 9
 #
 # Monitor progress by: tail -f /root/stackscript.log
-#
-# Author: Randall Wilk <randall@randallwilk.com>
-# Date: 08/16/2018
-# Last Updated: 08/20/2018
 ##################################################################
 
 # Redirect output of this script to our logfile
