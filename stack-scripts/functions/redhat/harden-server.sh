@@ -110,12 +110,20 @@ function configure_firewall() {
 #   None
 #############################################
 function install_ssl_cert() {
+    print_info "Installing LetsEncrypt SSL Certificate"
+
     $PKG_MANAGER install -y certbot-nginx
+
+    local CERTBOT_INSTALL_COMMAND="certbot --nginx"
+
+    if [[ ${SSL_EMAIL} = '' ]]; then
+        local CERTBOT_INSTALL_COMMAND="$CERTBOT_INSTALL_COMMAND --register-unsafely-without-email"
+    fi
 
     SSL_INSTALL=$(expect -c "
 
     set timeout 3
-    spawn certbot --nginx
+    spawn $CERTBOT_INSTALL_COMMAND
 
     expect \"Enter email address (used for urgent renewal and security notices)\"
     send \"$SSL_EMAIL\r\"
