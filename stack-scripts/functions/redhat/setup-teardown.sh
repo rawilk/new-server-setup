@@ -54,8 +54,7 @@ function install_temp_packages() {
 #############################################
 function install_needfulls() {
     if [[ ${IS_FEDORA} = true ]]; then
-        wget http://rpms.remirepo.net/fedora/remi-release-28.rpm
-        dnf install -y remi-release-28.rpm dnf-plugins-core
+        dnf install -y dnf-plugins-core
     else
         yum install -y epel-release yum-utils wget
     fi

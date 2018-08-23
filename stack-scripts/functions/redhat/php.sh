@@ -1,17 +1,29 @@
 #!/usr/bin/env bash
 # Author: Randall Wilk <randall@randallwilk.com>
 
+##############################################
+# Install PHP.
+# Globals:
+#    None
+# Arguments:
+#   None
+# Returns:
+#   None
+#############################################
 function install_php() {
     local PHP='php72w'
+    local PHP_MYSQL='mysql'
 
     if [[ ${IS_FEDORA} = true ]]; then
-        dnf config-manager --set-enabled remi-php72
         local PHP='php'
+        local PHP_MYSQL='mysqlnd'
     else
         rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
     fi
 
-    $PKG_MANAGER install -y ${PHP}-fpm ${PHP}-common ${PHP}-bcmath ${PHP}-gd ${PHP}-mbstring ${PHP}-xmlrpc ${PHP}-mysql ${PHP}-pdo ${PHP}-pecl-imagick ${PHP}-xml
+    $PKG_MANAGER install -y ${PHP} ${PHP}-fpm ${PHP}-common ${PHP}-bcmath \
+        ${PHP}-gd ${PHP}-mbstring ${PHP}-xmlrpc \
+        ${PHP}-${PHP_MYSQL} ${PHP}-pdo ${PHP}-pecl-imagick ${PHP}-xml
 }
 
 ##############################################
