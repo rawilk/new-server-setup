@@ -3,13 +3,14 @@
 ####################################################################
 # Author: Randall Wilk <randall@randallwilk.com>
 # Date: 08/04/2018
-# Last Updated: 08/21/2018
+# Last Updated: 08/22/2018
 #
 # Linode stack script to configure and install a LEMP stack on a
 # Redhat based server.
 #
 # Compatible with:
 #    - CentOS 7
+#    - Fedora 28
 #
 # Monitor progress by: tail -f /root/stackscript.log
 ##################################################################
