@@ -49,7 +49,7 @@ function harden_server() {
     # Create our sudo user
     add_sudo_user $SHELL_USER_NAME $SHELL_USER_PASSWORD
 
-    prevent_ssh_login
+    prevent_root_ssh_login
     basic_server_ssh_harden
     set_ssh_port
     disable_ssh_password_login
