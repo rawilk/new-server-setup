@@ -45,9 +45,12 @@ function configure_php() {
     cp /etc/php-fpm.d/www.conf /etc/php-fpm.d/www.conf.bak
     sed -i -e "s/user = .*/user = $FTP_USER_NAME/" /etc/php-fpm.d/www.conf
     sed -i -e "s/group = .*/group = $FTP_USER_NAME/" /etc/php-fpm.d/www.conf
-#    sed -i -e "s/listen = .*/listen = \/run\/php-fpm\/www.sock/" /etc/php-fpm.d/www.conf
     sed -i -e "s/.*listen.owner = .*/listen.owner = $FTP_USER_NAME/" /etc/php-fpm.d/www.conf
     sed -i -e "s/.*listen.group = .*/listen.group = $FTP_USER_NAME/" /etc/php-fpm.d/www.conf
+
+    if [[ ${IS_FEDORA} = false ]]; then
+        sed -i -e "s/listen = .*/listen = \/run\/php-fpm\/www.sock/" /etc/php-fpm.d/www.conf
+    fi
 
     start_service php-fpm
 }
