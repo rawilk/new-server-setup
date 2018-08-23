@@ -116,9 +116,9 @@ function install_utils() {
     install_fail2ban
     install_htop
     install_node
-    install_ntp
 
     if [[ ${IS_FEDORA} = false ]]; then
+        install_ntp
         install_yum_cron
     fi
 }
