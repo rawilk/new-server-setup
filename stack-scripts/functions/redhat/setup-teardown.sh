@@ -90,7 +90,7 @@ function update_system() {
 function cleanup() {
     print_info "Cleaning Up"
 
-    $PKG_MANAGER remove -y expect
+    $PKG_MANAGER remove -y expect httpd
     $PKG_MANAGER clean all
     rm -rf /var/cache/yum
 }
