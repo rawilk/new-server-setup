@@ -42,9 +42,10 @@ function configure_php() {
     sed -i -e "s/.*cgi.fix_pathinfo=.*/cgi.fix_pathinfo=0/" /etc/php.ini
 
     # php-fpm
+    cp /etc/php-fpm.d/www.conf /etc/php-fpm.d/www.conf.bak
     sed -i -e "s/user = .*/user = $FTP_USER_NAME/" /etc/php-fpm.d/www.conf
     sed -i -e "s/group = .*/group = $FTP_USER_NAME/" /etc/php-fpm.d/www.conf
-    sed -i -e "s/listen = .*/listen = \/run\/php-fpm\/www.sock/" /etc/php-fpm.d/www.conf
+#    sed -i -e "s/listen = .*/listen = \/run\/php-fpm\/www.sock/" /etc/php-fpm.d/www.conf
     sed -i -e "s/.*listen.owner = .*/listen.owner = $FTP_USER_NAME/" /etc/php-fpm.d/www.conf
     sed -i -e "s/.*listen.group = .*/listen.group = $FTP_USER_NAME/" /etc/php-fpm.d/www.conf
 
