@@ -22,7 +22,7 @@ function install_php() {
     fi
 
     $PKG_MANAGER install -y ${PHP} ${PHP}-fpm ${PHP}-common ${PHP}-bcmath \
-        ${PHP}-gd ${PHP}-mbstring ${PHP}-xmlrpc \
+        ${PHP}-gd ${PHP}-mbstring ${PHP}-xmlrpc ${PHP}-json \
         ${PHP}-${PHP_MYSQL} ${PHP}-pdo ${PHP}-pecl-imagick ${PHP}-xml
 }
 
