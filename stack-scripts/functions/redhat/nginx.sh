@@ -120,6 +120,7 @@ EOT
 #############################################
 function install_nginx() {
     $PKG_MANAGER install -y nginx
+    start_service nginx
 }
 
 ##############################################
@@ -160,7 +161,7 @@ function init_site() {
     chown -R $FTP_USER_NAME:$FTP_USER_NAME /var/lib/nginx
     chown -R $FTP_USER_NAME:$FTP_USER_NAME /var/lib/php-fpm
 
-    start_service nginx
+    restart_nginx
 }
 
 ##############################################
