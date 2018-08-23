@@ -91,8 +91,8 @@ function update_system() {
 function cleanup() {
     print_info "Cleaning Up"
 
-    yum remove -y expect
-    yum clean all
+    $PKG_MANAGER remove -y expect
+    $PKG_MANAGER clean all
     rm -rf /var/cache/yum
 }
 
