@@ -304,7 +304,7 @@ systemctl start fail2ban
 In order to use FTP, we will need to install `vsftpd` and create a dedicated ftp user. This user will also be used to own the directory where the application will be served from.
 
 ```bash
-yum -y install vstpd
+yum -y install vsftpd
 ```
 
 **Add new ftp user account**
