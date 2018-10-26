@@ -478,7 +478,7 @@ http {
     gzip_comp_level 3;
     gzip_min_length 1000;
     gzip_proxied expired no-cache no-store private auth;
-    gzip_types text/plain application/x-javascript text/xml text/css application/xml;
+    gzip_types    text/plain application/javascript application/x-javascript text/javascript text/xml text/css;
     client_max_body_size 64M;
     include             /etc/nginx/mime.types;
     default_type        application/octet-stream;
