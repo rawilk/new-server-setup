@@ -83,7 +83,7 @@ server {
     index index.php index.html;
 
     access_log /var/log/nginx/$FQDN.access.log;
-    error_log /var/www/nginx/$FQDN.error.log;
+    error_log /var/log/nginx/$FQDN.error.log;
 
     charset utf-8;
     client_max_body_size 1024M;
