@@ -14,14 +14,16 @@ function include_github_script() {
     local OUTPUT=/root/stackfunctions.sh
 
     # Update the output file if one is provided
-    if [[ $2 != '' ]]; then
+    if [ $2 != '' ]
+    then
         local OUTPUT="$2"
     fi
 
     local URI="$BASE$1"
 
     # Append extra lines first if the file already has content
-    if [[ -s $OUTPUT ]]; then
+    if [ -s $OUTPUT ]
+    then
         echo "" >> $OUTPUT
         echo "" >> $OUTPUT
     fi
