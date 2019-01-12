@@ -53,7 +53,8 @@ function harden_server() {
     set_ssh_port
     disable_ssh_password_login
 
-    if [[ ${SSH_PORT} != '22' ]] && [[ ${SELINUX} != 'no' ]]; then
+    if [ $SSH_PORT != '22' ] && [ $SELINUX != 'no' ]
+    then
         # We need to let SELinux about the port change
         semanage port -a -t ssh_port_t -p tcp $SSH_PORT
     fi
@@ -89,7 +90,8 @@ function configure_firewall() {
     # Allow mysql through firewall
     firewall-cmd --add-port=3306/tcp --zone=public --permanent
 
-    if [[ ${SSL} = 'yes' ]]; then
+    if [ $SSL = 'yes' ]
+    then
         # Allow HTTPS traffic through firewall
         firewall-cmd --add-port=443/tcp --zone=public --permanent
         firewall-cmd --add-service=https --zone=public --permanent
@@ -115,7 +117,8 @@ function install_ssl_cert() {
 
     local CERTBOT_INSTALL_COMMAND="certbot --nginx"
 
-    if [[ ${SSL_EMAIL} = '' ]]; then
+    if [ $SSL_EMAIL = '' ]
+    then
         local CERTBOT_INSTALL_COMMAND="$CERTBOT_INSTALL_COMMAND --register-unsafely-without-email"
     fi
 

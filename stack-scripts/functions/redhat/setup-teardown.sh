@@ -12,7 +12,8 @@
 function basic_setup() {
     print_info "Performing Basic Setup"
 
-    if [[ ${SELINUX} = 'no' ]]; then
+    if [ $SELINUX = 'no' ]
+    then
         disable_selinux
     fi
 
@@ -52,7 +53,8 @@ function install_temp_packages() {
 #   None
 #############################################
 function install_needfulls() {
-    if [[ ${IS_FEDORA} = true ]]; then
+    if [ $IS_FEDORA = true ]
+    then
         dnf install -y dnf-plugins-core
     else
         yum install -y epel-release yum-utils wget
@@ -69,7 +71,8 @@ function install_needfulls() {
 #   None
 #############################################
 function update_system() {
-    if [[ ${IS_FEDORA} = true ]]; then
+    if [ $IS_FEDORA = true ]
+    then
         dnf upgrade -y
     else
         yum update -y

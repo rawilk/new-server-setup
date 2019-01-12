@@ -14,7 +14,8 @@ function install_mariadb() {
 
     local BASEURL='http://yum.mariadb.org/10.3/centos7-amd64'
 
-    if [[ ${IS_FEDORA} = true ]]; then
+    if [ $IS_FEDORA = true ]
+    then
         local BASEURL='http://yum.mariadb.org/10.3/fedora28-amd64'
     fi
 
