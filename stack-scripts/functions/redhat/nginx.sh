@@ -11,7 +11,7 @@
 #############################################
 function configure_nginx() {
     # back up the file first
-    cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.bk
+    cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.bak
 
     truncate -s 0 /etc/nginx/nginx.conf
 
@@ -137,7 +137,7 @@ server {
 EOT
 
 # create a backup of the virtual host file
-cp /etc/nginx/conf.d/$FQDN.conf /etc/nginx/conf.d/$FQDN.conf.bk
+cp /etc/nginx/conf.d/$FQDN.conf /etc/nginx/conf.d/$FQDN.conf.bak
 }
 
 ##############################################
