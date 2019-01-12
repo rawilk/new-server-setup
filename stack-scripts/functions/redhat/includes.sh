@@ -24,7 +24,8 @@ include_github_script stack-scripts/functions/redhat/php.sh
 IS_FEDORA=false
 PKG_MANAGER='yum'
 
-if [[ ${OS} == Fedora* ]]; then
+if [ $OS == Fedora* ]
+then
     IS_FEDORA=true
     PKG_MANAGER='dnf'
 fi
