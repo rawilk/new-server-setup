@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Author: Randall Wilk <randall@randallwilk.com>
 
 ##############################################
 # Configure ftp for the server.

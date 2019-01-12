@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Author: Randall Wilk <randall@randallwilk.com>
 
 ##############################################
 # Add the given user to the server.

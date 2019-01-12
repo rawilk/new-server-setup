@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Author: Randall Wilk <randall@randallwilk.com>
 
 function harden_server() {
     print_info "Performing basic server hardening"

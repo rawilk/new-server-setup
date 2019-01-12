@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 ####################################################################
-# Author: Randall Wilk <randall@randallwilk.com>
 # Date: 08/04/2018
 # Last Updated: 08/22/2018
 #
