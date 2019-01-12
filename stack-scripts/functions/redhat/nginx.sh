@@ -10,37 +10,53 @@
 #   None
 #############################################
 function configure_nginx() {
+    # back up the file first
+    cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.bk
+
     truncate -s 0 /etc/nginx/nginx.conf
 
     cat <<EOT >> /etc/nginx/nginx.conf
 user $FTP_USER_NAME;
 worker_processes auto;
-error_log /var/log/nginx/error.log;
 pid /run/nginx.pid;
+
+error_log /var/log/nginx/error.log;
+
 # Load dynamic modules. See /usr/share/nginx/README.dynamic.
 include /usr/share/nginx/modules/*.conf;
+
 events {
-    worker_connections 1024;
+    worker_connections 4096;
 }
+
 http {
-    log_format  main  '\$remote_addr - \$remote_user [\$time_local] "\$request" '
-                      '\$status \$body_bytes_sent "\$http_referer" '
-                      '"\$http_user_agent" "\$http_x_forwarded_for"';
-    access_log  /var/log/nginx/access.log  main;
+    include /etc/nginx/mime.types;
+
+    default_type application/octet-stream;
+
+    log_format   main '$remote_addr - $remote_user [$time_local]  $status '
+    '"$request" $body_bytes_sent "$http_referer" '
+    '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log /var/log/nginx/access.log main;
+
     sendfile on;
     tcp_nopush on;
     tcp_nodelay on;
-    keepalive_timeout 65;
-    types_hash_max_size 2048;
-    gzip on;
-    gzip_comp_level 3;
-    gzip_min_length 1000;
-    gzip_proxied expired no-cache no-store private auth;
-    gzip_types text/plain application/x-javascript text/xml text/css application/xml;
     client_max_body_size 64M;
-    include /etc/nginx/mime.types;
-    default_type application/octet-stream;
-    include /etc/nginx/conf.d/*.conf;
+    keepalive_timeout 65;
+    types_hash_max_size 2048; # internal parameter to speed up hashtable lookups
+
+    gzip on;
+    gzip_vary on; # tells proxies to cache both gzipped and regular versions of a resource
+    gzip_min_length 10240; # compress nothing less than 1024
+    gzip_comp_level 5; # offers about a 75% reduction for most ASCII files (almost identical to level 9)
+    gzip_proxied expired no-cache no-store private auth;
+    gzip_types text/plain text/css text/xml text/javascript application/x-javascript application/xml;
+    gzip_disable "MSIE [1-6]\."; # disable compression for Internet Explorer versions 1-6
+
+    # include all site virtual host files
+    include /etc/nginx/conf.d/*.conf
 }
 EOT
 }
@@ -55,19 +71,52 @@ EOT
 #   None
 #############################################
 function configure_site_server_block() {
-    touch /etc/nginx/conf.d/$HOSTNAME.conf
+    touch /etc/nginx/conf.d/$FQDN.conf
 
-    cat <<EOT >> /etc/nginx/conf.d/$HOSTNAME.conf
+    cat <<EOT >> /etc/nginx/conf.d/$FQDN.conf
 server {
     listen 80;
-    root /home/$FTP_USER_NAME/public_html/public;
-    index index.php index.html;
+    listen [::]:80;
+
     server_name $IPADDR www.$FQDN $FQDN;
+    root /var/www/$FQDN;
+    index index.php index.html;
 
-    access_log /home/$FTP_USER_NAME/logs/access.log;
-    error_log /home/$FTP_USER_NAME/logs/error.log;
+    access_log /var/log/nginx/$FQDN.access.log;
+    error_log /var/www/nginx/$FQDN.error.log;
 
-    client_max_body_size 1024M;
+    charset utf-8;
+    client_max_body_size = 1024M;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        try_files \$uri =404;
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        fastcgi_pass unix:/run/php-fpm/www.sock;
+        fastcgi_index index.php
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include /etc/nginx/fastcgi_params;
+        fastcgi_intercept_errors off;
+        fastcgi_buffer_size 16k;
+        fastcgi_buffers 4 16k;
+    }
+
+    location ~/\.ht {
+        deny all;
+    }
+
+    location ~ /\. {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+
+    location ~/.well-known {
+        allow all;
+    }
 
     location /favicon.ico {
         access_log off;
@@ -79,33 +128,16 @@ server {
         expires max;
     }
 
-    location / {
-        try_files \$uri \$uri/ /index.php?\$args;
-    }
-
-    location ~* ^.+.(jpg|jpeg|gif|css|png|js|ico|html|xml|txt)$ {
-        access_log        off;
-        expires           max;
-    }
-
-    location ~ \.php\$ {
-        try_files \$uri =404;
-        fastcgi_pass unix:/run/php-fpm/www.sock;
-        fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
-        include /etc/nginx/fastcgi_params;
-        client_max_body_size 1024M;
-    }
-
-    error_page 404 /404.html;
-        location = /40x.html {
-    }
-
-    error_page 500 502 503 504 /50x.html;
-        location = /50x.html {
+    location ~* \.(jpg|jpeg|gif|png|css|js|ico|xml)$ {
+        access_log off;
+        log_not_found off;
+        expires max;
     }
 }
 EOT
+
+# create a backup of the virtual host file
+cp /etc/nginx/conf.d/$FQDN.conf /etc/nginx/conf.d/$FQDN.conf.bk
 }
 
 ##############################################
@@ -147,18 +179,22 @@ function restart_nginx() {
 #############################################
 function init_site() {
     # Init site folder
+    mkdir -p /var/www/$FQDN
     mkdir -p /home/$FTP_USER_NAME/logs
-    mkdir -p /home/$FTP_USER_NAME/public_html/public
 
     # Create a test page
-    touch /home/$FTP_USER_NAME/public_html/public/index.php
-    echo "<?php phpinfo(); ?>" >> /home/$FTP_USER_NAME/public_html/public/index.php
+    touch /var/www/$FQDN/index.php
+    echo "<?php phpinfo(); ?>" >> /var/www/$FQDN/index.php
 
     # Give FTP user ownership of the folders
-    chown -R $FTP_USER_NAME:$FTP_USER_NAME /home/$FTP_USER_NAME
-    chown -R $FTP_USER_NAME:$FTP_USER_NAME /var/lib/php
-    chown -R $FTP_USER_NAME:$FTP_USER_NAME /var/lib/nginx
-    chown -R $FTP_USER_NAME:$FTP_USER_NAME /var/lib/php-fpm
+    chown -R $FTP_USER_NAME:nginx /var/www
+    chown -R $FTP_USER_NAME:nginx /var/lib/php
+    chown -R $FTP_USER_NAME:nginx /var/lib/nginx
+    chown -R $FTP_USER_NAME:nginx /var/lib/php-fpm
+    chown -R $FTP_USER_NAME:nginx /var/log/nginx
+
+    find /var/www/ -type d -exec chmod 775 {} +
+    find /var/www/ -type f -exec chmod 664 {} +
 
     restart_nginx
 }

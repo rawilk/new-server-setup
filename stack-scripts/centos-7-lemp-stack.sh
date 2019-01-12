@@ -2,7 +2,7 @@
 
 ####################################################################
 # Date: 08/04/2018
-# Last Updated: 08/22/2018
+# Last Updated: 01/12/2019
 #
 # Linode stack script to configure and install a LEMP stack on a
 # Redhat based server.
@@ -31,7 +31,8 @@ setup_database
 setup_php
 setup_site
 
-if [[ ${SSL} = 'yes' ]]; then
+if [ $SSL = 'yes' ]
+then
     install_ssl_cert
 fi
 

@@ -64,7 +64,7 @@ function setup_ftp() {
     install_ftp
 
     # Create our ftp user
-    add_user $FTP_USER_NAME $FTP_USER_PASSWORD
+    add_ftp_user $FTP_USER_NAME $FTP_USER_PASSWORD
 
     configure_ftp
     start_service vsftpd

@@ -16,6 +16,23 @@ function add_user() {
 }
 
 ##############################################
+# Add the given ftp user account.
+# Globals:
+#    None
+# Arguments:
+#   Username, Password
+# Returns:
+#   None
+#############################################
+function add_ftp_user() {
+    print_info "Creating FTP User: $1"
+
+    useradd -d /var/www/ $1 && echo $2 | passwd $1 --stdin
+
+    # add the ftp user to the nginx group
+    usermod -aG nginx $1
+}
+##############################################
 # Add the given user as a sudo user.
 # Globals:
 #    None
