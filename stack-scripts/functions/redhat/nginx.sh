@@ -180,7 +180,6 @@ function restart_nginx() {
 function init_site() {
     # Init site folder
     mkdir -p /var/www/$FQDN
-    mkdir -p /home/$FTP_USER_NAME/logs
 
     # Create a test page
     touch /var/www/$FQDN/index.php
