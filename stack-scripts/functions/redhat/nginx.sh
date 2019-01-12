@@ -34,9 +34,9 @@ http {
 
     default_type application/octet-stream;
 
-    log_format   main '$remote_addr - $remote_user [$time_local]  $status '
-    '"$request" $body_bytes_sent "$http_referer" '
-    '"$http_user_agent" "$http_x_forwarded_for"';
+    log_format   main '\$remote_addr - \$remote_user [\$time_local]  \$status '
+    '"\$request" \$body_bytes_sent "\$http_referer" '
+    '"\$http_user_agent" "\$http_x_forwarded_for"';
 
     access_log /var/log/nginx/access.log main;
 
@@ -89,7 +89,7 @@ server {
     client_max_body_size = 1024M;
 
     location / {
-        try_files $uri $uri/ /index.php?$query_string;
+        try_files \$uri \$uri/ /index.php?\$query_string;
     }
 
     location ~ \.php$ {
@@ -97,7 +97,7 @@ server {
         fastcgi_split_path_info ^(.+\.php)(/.+)$;
         fastcgi_pass unix:/run/php-fpm/www.sock;
         fastcgi_index index.php
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
         include /etc/nginx/fastcgi_params;
         fastcgi_intercept_errors off;
         fastcgi_buffer_size 16k;
