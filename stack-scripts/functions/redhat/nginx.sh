@@ -86,7 +86,7 @@ server {
     error_log /var/www/nginx/$FQDN.error.log;
 
     charset utf-8;
-    client_max_body_size = 1024M;
+    client_max_body_size 1024M;
 
     location / {
         try_files \$uri \$uri/ /index.php?\$query_string;
@@ -96,7 +96,7 @@ server {
         try_files \$uri =404;
         fastcgi_split_path_info ^(.+\.php)(/.+)$;
         fastcgi_pass unix:/run/php-fpm/www.sock;
-        fastcgi_index index.php
+        fastcgi_index index.php;
         fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
         include /etc/nginx/fastcgi_params;
         fastcgi_intercept_errors off;
