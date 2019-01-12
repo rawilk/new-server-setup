@@ -56,7 +56,7 @@ http {
     gzip_disable "MSIE [1-6]\."; # disable compression for Internet Explorer versions 1-6
 
     # include all site virtual host files
-    include /etc/nginx/conf.d/*.conf
+    include /etc/nginx/conf.d/*.conf;
 }
 EOT
 }
