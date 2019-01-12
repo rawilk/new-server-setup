@@ -85,6 +85,20 @@ function install_ntp() {
 }
 
 ##############################################
+# Install unzip.
+# Globals:
+#    None
+# Arguments:
+#   None
+# Returns:
+#   None
+#############################################
+function install_unzip() {
+    print_info "Installing unzip"
+
+    $PKG_MANAGER install -y unzip
+}
+##############################################
 # Setup automatic updates.
 # Globals:
 #    None
@@ -111,6 +125,7 @@ function install_yum_cron() {
 #   None
 #############################################
 function install_utils() {
+    install_unzip
     install_composer
     install_fail2ban
     install_htop
