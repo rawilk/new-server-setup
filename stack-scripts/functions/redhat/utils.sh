@@ -116,7 +116,8 @@ function install_utils() {
     install_htop
     install_node
 
-    if [[ ${IS_FEDORA} = false ]]; then
+    if [ $IS_FEDORA = false ]
+    then
         install_ntp
         install_yum_cron
     fi
