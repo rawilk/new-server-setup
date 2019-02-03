@@ -53,5 +53,5 @@ function add_ftp_user() {
     usermod -aG www-data $1
 
     # Give our ftp user ownership of the directory
-    chown -R /var/www/ $1:www-data
+    chown -R $1:www-data /var/www/
 }
