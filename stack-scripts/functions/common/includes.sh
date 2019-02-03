@@ -14,7 +14,7 @@ function include_github_script() {
     local OUTPUT=/root/stackfunctions.sh
 
     # Update the output file if one is provided
-    if [ $2 != '' ]
+    if [[ $2 != '' ]]
     then
         local OUTPUT="$2"
     fi
@@ -28,5 +28,5 @@ function include_github_script() {
         echo "" >> $OUTPUT
     fi
 
-    curl ${URI} >> ${OUTPUT}
+    curl $URI >> $OUTPUT
 }

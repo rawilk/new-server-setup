@@ -10,7 +10,8 @@
 #   None
 #############################################
 function determine_os() {
-    if [[ -f /etc/os-release ]]; then
+    if [ -f /etc/os-release ]
+    then
         . /etc/os-release
         OS=$NAME
         OS_VERSION=$VERSION_ID

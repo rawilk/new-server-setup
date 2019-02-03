@@ -16,7 +16,7 @@
 #   None
 #############################################
 function prevent_root_ssh_login() {
-    if [ $ROOT_LOGIN = 'no' ]
+    if [ "$ROOT_LOGIN" = 'no' ]
     then
         sed -i -e "s/.*PermitRootLogin .*/PermitRootLogin no/" /etc/ssh/sshd_config
 
@@ -52,21 +52,21 @@ function basic_server_ssh_harden() {
 #############################################
 function disable_ssh_password_login() {
     # Disable password login
-    if [[ $PASSWORD_LOGIN = 'no' ]] && [[ $SSH_PUB_KEY != '' ]]
+    if [ "$PASSWORD_LOGIN" = 'no' ] && [ "$SSH_PUB_KEY" != '' ]
     then
         sed -i -e "s/.*PasswordAuthentication .*/PasswordAuthentication no/" /etc/ssh/sshd_config
     fi
 
     # Setup ssh keys
-    if [ $SSH_PUB_KEY != '' ]
+    if [ "$SSH_PUB_KEY" != '' ]
     then
         mkdir -p /root/.ssh
         mkdir -p /home/$SHELL_USER_NAME/.ssh
         echo "$SSH_PUB_KEY" > /root/.ssh/authorized_keys
         echo "$SSH_PUB_KEY" > /home/$SHELL_USER_NAME/.ssh/authorized_keys
         chmod -R 700 /root/.ssh
-        chmod -R 700 /home/${SHELL_USER_NAME}/.ssh
-        chown -R ${SHELL_USER_NAME}:${SHELL_USER_NAME} /home/${SHELL_USER_NAME}/.ssh
+        chmod -R 700 /home/$SHELL_USER_NAME/.ssh
+        chown -R $SHELL_USER_NAME:$SHELL_USER_NAME /home/$SHELL_USER_NAME/.ssh
     fi
 }
 
@@ -93,7 +93,7 @@ function restart_ssh() {
 #   None
 #############################################
 function set_ssh_port() {
-    if [ $SSH_PORT != '22' ]
+    if [ "$SSH_PORT" != '22' ]
     then
         sed -i -e "s/.*Port 22/Port $SSH_PORT/" /etc/ssh/sshd_config
     fi
