@@ -25,8 +25,5 @@ IS_UBUNTU=false
 
 if [[ $OS == Ubuntu* ]]
 then
-    echo it worked
     IS_UBUNTU=true
-else
-    echo failed
 fi

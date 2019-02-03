@@ -10,6 +10,9 @@
 #   None
 #############################################
 function configure_ftp() {
+    # make a backup of the original config first
+    cp /etc/vsftpd.conf /etc/vsftpd.conf.bak
+
     # Update vsftpd settings
     sed -i -e "s/anonymous_enable=.*/anonymous_enable=NO/" /etc/vsftpd.conf
     sed -i -e "s/.*chroot_local_user=.*/chroot_local_user=YES/" /etc/vsftpd.conf
@@ -60,11 +63,18 @@ function restart_ftp() {
 #   None
 #############################################
 function setup_ftp() {
+    # ../common/common.sh
+    print_info "Installing and setting up FTP"
+
+    # ./
     install_ftp
 
-    # Create our ftp user
-    add_user $FTP_USER_NAME $FTP_USER_PASSWORD
+    # ./users.sh | Create our ftp user
+    add_ftp_user $FTP_USER_NAME $FTP_USER_PASSWORD
 
+    # ./
     configure_ftp
+
+    # ./
     restart_ftp
 }

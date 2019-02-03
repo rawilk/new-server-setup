@@ -10,6 +10,7 @@
 #   None
 #############################################
 function add_user() {
+    # ../common/common.sh
     print_info "Creating User: $1"
 
     adduser --disabled-password --gecos "" $1
@@ -30,4 +31,24 @@ function add_sudo_user() {
     add_user $1 $2
 
     usermod -aG sudo $1
+}
+
+##############################################
+# Add the given ftp user account.
+# Globals:
+#    None
+# Arguments:
+#   Username, Password
+# Returns:
+#   None
+#############################################
+function add_ftp_user() {
+    # ../common/common.sh
+    print_info "Creating FTP User: $1"
+
+    adduser --disabled-password --gecos "" $1 -d /var/www/
+    echo "$1:$2" | chpasswd
+
+    # add the ftp user to the nginx group
+    usermod -aG nginx $1
 }

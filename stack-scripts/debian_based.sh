@@ -15,3 +15,9 @@ basic_setup
 
 # ./debian-based/harden-server.sh
 harden_server
+
+if [ "$INSTALL_WEBSERVER" = 'yes' ]
+then
+    # ./debian-based/ftp.sh
+    setup_ftp
+fi
