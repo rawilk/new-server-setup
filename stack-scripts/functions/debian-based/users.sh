@@ -46,7 +46,7 @@ function add_ftp_user() {
     # ../common/common.sh
     print_info "Creating FTP User: $1"
 
-    adduser --disabled-password --no-create-home --home-dir /var/www/ --gecos "" $1
+    adduser --disabled-password --no-create-home --home /var/www/ --gecos "" $1
     echo "$1:$2" | chpasswd
 
     # add the ftp user to the nginx (www-data) group
