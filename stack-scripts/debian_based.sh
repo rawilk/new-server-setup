@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+# Redirect the output of this script to our logfile
+exec &> /root/stackscript.log
+
+curl -o /root/stack-includes.sh -L https://raw.githubusercontent.com/rawilk/new-server-setup/master/stack-scripts/functions/debian-based/includes.sh
+
+. /root/stack-includes.sh
+
+# ./common/common.sh
+print_info "Install Start"
+
+# ./debian-based/setup-teardown.sh
+basic_setup
