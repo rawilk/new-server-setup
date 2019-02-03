@@ -44,25 +44,30 @@ function install_temp_packages() {
 #   None
 #############################################
 function basic_setup() {
+    # ../common/common.sh
     print_info "Performing Basic Setup"
 
-    if [[ ${IS_UBUNTU} = true ]]; then
+    if [ $IS_UBUNTU = true ]
+    then
        apt-get remove -y --purge keyboard-configuration
     fi
 
+    # ./
     update_system
 
-    if [[ ${IS_UBUNTU} = false ]]; then
-        # Debian 9 does not have some packages that Ubuntu 18.04 has pre-installed
+    if [ $IS_UBUNTU = false ]
+    then
+        # ./ | Debian 9 does not have some packages that Ubuntu 18.04 has pre-installed
         init_debian
     fi
 
+    # ./
     install_temp_packages
 
-    # Fix backspace issue for shell scripts in terminal
-    stty erase ^H
-
+    # ../common/basic-setup.sh
     set_timezone
+
+    # ../common/basic-setup.sh
     init_hosts
 }
 
@@ -98,6 +103,10 @@ function cleanup() {
     apt-get autoremove -y
     apt-get clean
     apt-get autoclean
+
+    # Fix backspace issues in terminal
+    echo "stty erase ^H" >> ~/.bashrc # for root user
+    echo "stty erase ^H" >> /home/$SHELL_USER_NAME/.bashrc # for the shell user
 }
 
 ##############################################

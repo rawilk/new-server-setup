@@ -23,6 +23,7 @@ include_github_script stack-scripts/functions/debian-based/php.sh
 # Determine if we are setting up an Ubuntu or Debian server
 IS_UBUNTU=false
 
-if [[ ${OS} == Ubuntu* ]]; then
+if [ $OS == Ubuntu* ]
+then
     IS_UBUNTU=true
 fi
