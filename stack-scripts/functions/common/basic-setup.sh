@@ -26,9 +26,17 @@ function set_timezone() {
 #############################################
 function init_hosts() {
     # Set the hostname
-    hostnamectl set-hostname $FQDN --static
+    local HOST=$FQDN
+    if [ $HOST = '' ]
+    then
+        local HOST=$HOSTNAME
+    fi
+    hostnamectl set-hostname $HOST --static
 
     # This section sets the Fully Qualified Domain Name (FQDN) in the hosts file.
-    echo $IPADDR $FQDN $HOSTNAME >> /etc/hosts
-    echo $IPADDR6 $FQDN $HOSTNAME >> /etc/hosts
+    if [ $FQDN != '' ]
+    then
+        echo $IPADDR $FQDN $HOSTNAME >> /etc/hosts
+        echo $IPADDR6 $FQDN $HOSTNAME >> /etc/hosts
+    fi
 }
