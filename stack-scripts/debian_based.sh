@@ -18,6 +18,9 @@ harden_server
 
 if [ "$INSTALL_WEBSERVER" = 'yes' ]
 then
+    # ./debian-based/nginx.sh
+    install_nginx
+
     # ./debian-based/ftp.sh
     setup_ftp
 fi

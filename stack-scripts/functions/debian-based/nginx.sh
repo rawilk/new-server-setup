@@ -112,11 +112,13 @@ EOT
 #   None
 #############################################
 function install_nginx() {
-    if [[ ${IS_UBUNTU} = false ]]; then
+    if [ $IS_UBUNTU = false ]
+    then
         add-apt-repository 'deb http://nginx.org/packages/debian/ stretch nginx'
         wget http://nginx.org/keys/nginx_signing.key
         apt-key add nginx_signing.key
 
+        # ./setup-teardown.sh
         update_system
     fi
 
