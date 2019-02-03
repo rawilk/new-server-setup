@@ -1,6 +1,7 @@
 # Debian Based Server Stack Script
 
-A stack script designed to quickly deploy a new debian based server.
+A stack script designed to quickly deploy a new debian based server. Progress can be monitored by connecting
+to the server via ssh as **root** and entering this command: `tail -f /root/stackscript.log`
 
 ## Compatible With:
 - Ubuntu 18.04 LTS
