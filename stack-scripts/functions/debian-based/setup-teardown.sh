@@ -83,7 +83,7 @@ function basic_setup() {
 function update_system() {
     print_info "Updating System"
 
-    apt-get update -y && apt-get upgrade -y
+    apt-get update -y #&& apt-get upgrade -y
 }
 
 ##############################################
