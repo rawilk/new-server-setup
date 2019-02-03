@@ -1,16 +1,36 @@
 #!/usr/bin/env bash
 
+##############################################
+# Perform some basic server hardening
+# measures.
+# Globals:
+#    None
+# Arguments:
+#   None
+# Returns:
+#   None
+#############################################
 function harden_server() {
+    # ../common/common.sh
     print_info "Performing basic server hardening"
 
     # Create our sudo user
+    # ./users.sh
     add_sudo_user $SHELL_USER_NAME $SHELL_USER_PASSWORD
 
+    # ../common/harden-server.sh | Only disables if option set to 'no'
     prevent_root_ssh_login
+
+    # ../common/harden-server.sh
     basic_server_ssh_harden
+
+    # ../common/harden-server.sh
     set_ssh_port
+
+    # ../common/harden-server.sh | Only disables if an ssh key is provided and option is set to 'no'
     disable_ssh_password_login
 
+    # ../common/harden-server.sh
     restart_ssh
 }
 

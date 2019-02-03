@@ -26,6 +26,8 @@ function add_user() {
 #   None
 #############################################
 function add_sudo_user() {
+    # ./
     add_user $1 $2
+
     usermod -aG sudo $1
 }

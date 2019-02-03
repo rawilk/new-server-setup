@@ -12,3 +12,6 @@ print_info "Install Start"
 
 # ./debian-based/setup-teardown.sh
 basic_setup
+
+# ./debian-based/harden-server.sh
+harden_server

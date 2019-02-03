@@ -16,7 +16,8 @@
 #   None
 #############################################
 function prevent_root_ssh_login() {
-    if [[ $ROOT_LOGIN = 'no' ]]; then
+    if [ $ROOT_LOGIN = 'no' ]
+    then
         sed -i -e "s/.*PermitRootLogin .*/PermitRootLogin no/" /etc/ssh/sshd_config
 
         # Add sudo user to allowed users in /etc/ssh/sshd_config
@@ -35,7 +36,7 @@ function prevent_root_ssh_login() {
 #############################################
 function basic_server_ssh_harden() {
     sed -i -e "s/.*AddressFamily .*/AddressFamily inet/" /etc/ssh/sshd_config
-    sed -i -e "s/.*LoginGraceTime .*/LoginGraceTime $LOGIN_GRACE_TIME/" /etc/ssh/sshd_config
+    sed -i -e "s/.*LoginGraceTime .*/LoginGraceTime 1m/" /etc/ssh/sshd_config
     sed -i -e "s/.*ClientAliveInterval .*/ClientAliveInterval 600/" /etc/ssh/sshd_config
     sed -i -e "s/.*ClientAliveCountMax .*/ClientAliveCountMax 0/" /etc/ssh/sshd_config
 }
@@ -51,12 +52,14 @@ function basic_server_ssh_harden() {
 #############################################
 function disable_ssh_password_login() {
     # Disable password login
-    if [[ $PASSWORD_LOGIN = 'no' ]] && [[ $SSH_PUB_KEY != '' ]]; then
+    if [ $PASSWORD_LOGIN = 'no' ] && [ $SSH_PUB_KEY != '' ]
+    then
         sed -i -e "s/.*PasswordAuthentication .*/PasswordAuthentication no/" /etc/ssh/sshd_config
     fi
 
     # Setup ssh keys
-    if [[ $SSH_PUB_KEY != '' ]]; then
+    if [ $SSH_PUB_KEY != '' ]
+    then
         mkdir -p /root/.ssh
         mkdir -p /home/$SHELL_USER_NAME/.ssh
         echo "$SSH_PUB_KEY" > /root/.ssh/authorized_keys
@@ -90,7 +93,8 @@ function restart_ssh() {
 #   None
 #############################################
 function set_ssh_port() {
-    if [[ $SSH_PORT != '22' ]]; then
+    if [ $SSH_PORT != '22' ]
+    then
         sed -i -e "s/.*Port 22/Port $SSH_PORT/" /etc/ssh/sshd_config
     fi
 }
