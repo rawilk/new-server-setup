@@ -6,9 +6,9 @@
 
 #### SSH
 #<UDF name="ssh_pub_key" label="SSH pubkey (installed for root and shell user)" example="ssh-rsa ..." default="">
-#<UDF name="password_login" label="Permit SSH Password Login" oneOf="no,yes" default="no">
-#<UDF name="ssh_port" label="SSH Port" default="22">
+#<UDF name="password_login" label="Permit SSH Password Login?" oneOf="no,yes" default="no">
 #<UDF name="root_login" label="Permit Root SSH Login?" oneOf="no,yes" default="no">
+#<UDF name="ssh_port" label="SSH Port" default="22">
 #<UDF name="shell_user_name" label="Shell User Name">
 #<UDF name="shell_user_password" label="Shell User Password">
 
