@@ -52,7 +52,7 @@ function basic_server_ssh_harden() {
 #############################################
 function disable_ssh_password_login() {
     # Disable password login
-    if [ $PASSWORD_LOGIN = 'no' ] && [ $SSH_PUB_KEY != '' ]
+    if [[ $PASSWORD_LOGIN = 'no' ]] && [[ $SSH_PUB_KEY != '' ]]
     then
         sed -i -e "s/.*PasswordAuthentication .*/PasswordAuthentication no/" /etc/ssh/sshd_config
     fi
