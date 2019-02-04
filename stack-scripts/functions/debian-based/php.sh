@@ -13,10 +13,14 @@ function install_php() {
     # ../common/common.sh
     print_info "Installing PHP"
 
-    local PHP="php"
+    local PHP="php$PHP_VERSION"
 
-    if [ $IS_UBUNTU = false ]
+    if [ $IS_UBUNTU = true ]
     then
+        apt-get install -y python-software-properties
+        add-apt-repository ppa:ondrej/php
+        apt-get update -y
+    else
         # Debian needs this for the newest php version
         apt-get install -y apt-transport-https lsb-release ca-certificates
         wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
@@ -27,7 +31,8 @@ function install_php() {
         local PHP="php7.2"
     fi
 
-    apt-get install -y ${PHP}-fpm ${PHP}-common ${PHP}-bcmath ${PHP}-gd ${PHP}-mbstring ${PHP}-xmlrpc ${PHP}-mysql ${PHP}-imagick ${PHP}-xml ${PHP}-zip
+    apt-get install -y $PHP-fpm $PHP-common $PHP-bcmath $PHP-gd $PHP-mbstring \
+    $PHP-xmlrpc $PHP-mysql $PHP-imagick $PHP-xml $PHP-zip
 }
 
 ##############################################

@@ -12,10 +12,11 @@
 #<UDF name="shell_user_name" label="Shell User Name">
 #<UDF name="shell_user_password" label="Shell User Password">
 
-#### FTP
+#### FTP/Nginx/PHP
 #<UDF name="install_webserver" label="Install Webserver?" oneOf="no,yes" default="yes">
 #<UDF name="ftp_user_name" label="FTP User Name" default="">
 #<UDF name="ftp_user_password" label="FTP User Password" default="">
+#<UDF name="php_version" label="PHP Version" oneOf="5.6,7.0,7.1,7.2" default="7.2">
 
 #### Database
 #<UDF name="install_mysql" label="Install MySQL?" oneOf="no,yes" default="yes">
