@@ -18,7 +18,7 @@ function install_php() {
     if [ $IS_UBUNTU = true ]
     then
         apt-get install -y python-software-properties
-        add-apt-repository ppa:ondrej/php
+        add-apt-repository -y ppa:ondrej/nginx-mainline
         apt-get update -y
     else
         # Debian needs this for the newest php version
