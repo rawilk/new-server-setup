@@ -7,20 +7,23 @@ curl -o /root/stack-includes.sh -L https://raw.githubusercontent.com/rawilk/new-
 
 . /root/stack-includes.sh
 
-# ./common/common.sh
+# ./functions/common/common.sh
 print_info "Install Start"
 
-# ./debian-based/setup-teardown.sh
+# ./functions/debian-based/setup-teardown.sh
 basic_setup
 
-# ./debian-based/harden-server.sh
+# ./functions/debian-based/harden-server.sh
 harden_server
 
 if [ "$INSTALL_WEBSERVER" = 'yes' ]
 then
-    # ./debian-based/nginx.sh
+    # ./functions/debian-based/nginx.sh
     install_nginx
 
-    # ./debian-based/ftp.sh
+    # ./functions/debian-based/ftp.sh
     setup_ftp
+
+    # ./functions/debian-based/php.sh
+    setup_php
 fi

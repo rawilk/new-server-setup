@@ -10,11 +10,13 @@
 #   None
 #############################################
 function install_php() {
+    # ../common/common.sh
     print_info "Installing PHP"
 
     local PHP="php"
 
-    if [[ ${IS_UBUNTU} = false ]]; then
+    if [ $IS_UBUNTU = false ]
+    then
         # Debian needs this for the newest php version
         apt-get install -y apt-transport-https lsb-release ca-certificates
         wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
@@ -45,10 +47,11 @@ function configure_php() {
 
     # php-fpm config
     sed -i -e "s/user = .*/user = $FTP_USER_NAME/" /etc/php/7.2/fpm/pool.d/www.conf
-    sed -i -e "s/group = .*/group = $FTP_USER_NAME/" /etc/php/7.2/fpm/pool.d/www.conf
+    sed -i -e "s/group = .*/group = www-data/" /etc/php/7.2/fpm/pool.d/www.conf
     sed -i -e "s/;listen.owner = .*/listen.owner = $FTP_USER_NAME/" /etc/php/7.2/fpm/pool.d/www.conf
-    sed -i -e "s/;listen.group = .*/listen.group = $FTP_USER_NAME/" /etc/php/7.2/fpm/pool.d/www.conf
+    sed -i -e "s/;listen.group = .*/listen.group = www-data/" /etc/php/7.2/fpm/pool.d/www.conf
 
+    # ./
     restart_php_fpm
 }
 
@@ -75,6 +78,9 @@ function restart_php_fpm() {
 #   None
 #############################################
 function setup_php() {
+    # ./
     install_php
-    configure_php
+
+    # ./
+    # configure_php
 }
