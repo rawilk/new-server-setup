@@ -29,7 +29,7 @@
 #<UDF name="ssl_email" label="SSL Renewal and Security Notices Email" default="">
 
 # Retrieve main install script from git repository
-curl -o /root/init.sh -L https://raw.githubusercontent.com/rawilk/new-server-setup/master/stack-scripts/ubuntu-18-lemp-stack.sh
+curl -o /root/init.sh -L https://raw.githubusercontent.com/rawilk/new-server-setup/master/stack-scripts/debian_based.sh
 
 # Execute main install script
 . ./root/init.sh
